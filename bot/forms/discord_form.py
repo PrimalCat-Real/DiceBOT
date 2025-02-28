@@ -3,8 +3,13 @@ import discord
 
 from bot.forms.form import Form
 from config import FORM_FIELDS, PLAYER_ROLE_ID, is_admin, is_moderator
+from database.database import DatabaseManager
 
 class DiscordForm(Form):
+    def __init__(self, title, fields, db_manager: DatabaseManager):
+        super().__init__(title, fields)
+        self.db_manager = db_manager
+
     async def create_modal(self, interaction: discord.Interaction):
         class FormModal(discord.ui.Modal, title=self.title):
             def __init__(self, form: DiscordForm):
