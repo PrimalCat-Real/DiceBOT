@@ -25,11 +25,24 @@ class DiscordForm(Form):
 
             async def on_submit(self, interaction: discord.Interaction):
                 for i, field in enumerate(FORM_FIELDS):
-                    self.form.data[field.name] = self.children[i].value
-                
+                    self.form.data[field.key] = self.children[i].value
+
                 user_id = interaction.user.id
-                mc_username = self.form.data["Ник в игре"]
-                age = self.form.data.get("Реальный Возраст", None)
+                mc_username = self.form.data.get("minecraft_username", None)
+                age = self.form.data.get("real_age", None)
+                rp_story = self.form.data.get("rp_character_story", None)
+
+                # Валидация
+                errors = {}
+                for field in FORM_FIELDS:
+                    error = field.validate(self.form.data.get(field.key, ""))
+                    if error:
+                        errors[field.key] = error
+
+                if errors:
+                    error_message = "\n".join(errors.values())
+                    await interaction.response.send_message(f"Ошибка валидации:\n{error_message}", ephemeral=True)
+                    return
 
 
                 user_roles = [role.id for role in interaction.user.roles]
