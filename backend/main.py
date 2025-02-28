@@ -4,7 +4,7 @@ import subprocess
 import os
 from dotenv import load_dotenv
 
-load_dotenv() # Загрузка переменных окружения из .env
+load_dotenv()
 
 app = FastAPI()
 
