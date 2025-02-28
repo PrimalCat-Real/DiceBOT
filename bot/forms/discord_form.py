@@ -12,17 +12,15 @@ class DiscordForm(Form):
 
     async def create_modal(self, interaction: discord.Interaction):
         class FormModal(discord.ui.Modal, title=self.title):
-            def __init__(self, form: DiscordForm):
+            def __init__(self, form: DiscordForm, db_manager: DatabaseManager):
                 super().__init__()
                 self.form = form
+                self.db_manager = db_manager
                 for field in form.fields:
                     if field.field_type == "text":
                         self.add_item(discord.ui.TextInput(label=field.name, placeholder=field.placeholder, style=discord.TextStyle.short, required=field.required, min_length=field.min_length, max_length=field.max_length))
                     elif field.field_type == "textarea":
                         self.add_item(discord.ui.TextInput(label=field.name, placeholder=field.placeholder, style=discord.TextStyle.paragraph, required=field.required, min_length=field.min_length, max_length=field.max_length))
-
-
-
 
             async def on_submit(self, interaction: discord.Interaction):
                 for i, field in enumerate(FORM_FIELDS):
@@ -44,19 +42,12 @@ class DiscordForm(Form):
                     await interaction.response.send_message(f"Ошибка валидации:\n{error_message}", ephemeral=True)
                     return
 
-
                 user_roles = [role.id for role in interaction.user.roles]
                 discord_role = None
                 if any(is_admin(role_id) for role_id in user_roles):
                     discord_role = "admin"
                 elif any(is_moderator(role_id) for role_id in user_roles):
                     discord_role = "moderator"
-                
-                # TODO add check if some field already exist
-                # TODO check if user submit form from telegram, add in tg command for link discord
-                # TODO on tg link send in welcome form
-
-                
 
                 user_data = {
                     "discord_name": interaction.user.name,
@@ -91,42 +82,10 @@ class DiscordForm(Form):
                 else:
                     self.db_manager.users.insert_one(user_data)
 
-        
                 if self.db_manager.check_form_duplicate(mc_username):
                     await interaction.response.send_message("Анкета с таким ником уже существует", ephemeral=True)
                     return
 
                 self.db_manager.forms.insert_one(form_data)
 
-
                 await interaction.response.send_message("Форма отправлена!", ephemeral=True)
-                # # Проверка наличия пользователя
-                # existing_form = forms_collection.find_one({"mc_username": self.form.data["Ник в игре"]})
-                # if existing_form:
-                #     await interaction.response.send_message(MESSAGES["user_exists"].format(mc_username=self.form.data["Ник в игре"]), ephemeral=True)
-                #     return
-
-                # # Сохранение данных в базу данных
-                # user_info = {
-                #     "Discord Username": interaction.user.name,
-                #     "User ID": interaction.user.id,
-                #     "Account Created At": interaction.user.created_at.strftime('%Y-%m-%d %H:%M:%S')
-                # }
-                # form_data = {
-                #     "discord_username": interaction.user.name,
-                #     "discord_avatar": interaction.user.avatar.url if interaction.user.avatar else "",
-                #     "mc_username": self.form.data["Ник в игре"],
-                #     "age": self.form.data["Реальный Возраст"],
-                #     "rp_experience": self.form.data["Опыт RP"],
-                #     "rp_story": self.form.data["История персонажа RP"],
-                #     "source_info": self.form.data["Как вы узнали о сервере?"],
-                #     "user_info": user_info,
-                #     "submission_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                #     "status": "В ожидании"
-                # }
-
-                # forms_collection.update_one({"discord_username": interaction.user.name}, {"$set": form_data}, upsert=True)
-
-                # await interaction.response.send_message(MESSAGES["form_submitted"], ephemeral=True)
-
-        await interaction.response.send_modal(FormModal(self))
