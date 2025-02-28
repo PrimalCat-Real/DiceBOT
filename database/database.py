@@ -19,7 +19,12 @@ class DatabaseManager:
             self.db = None
             self.discord_embeds = None
         assert self.client is not None, "Cannot connect to MongoDB"
-        
+    
+
+    def check_form_duplicate(self, mc_username):
+        existing_form = self.forms.find_one({"mc_username": mc_username, "status": {"$in": ["В ожидании", "Одобрено"]}})
+        return existing_form is not None
+    
     def save_discord_message(self, message_id, channel_id, guild_id, button_types: list[str]):
         self.discord_embeds.update_one(
             {'message_id': message_id},
