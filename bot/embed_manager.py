@@ -29,7 +29,7 @@ class EmbedManager:
     async def send_embed_with_view(channel: discord.TextChannel, embed, view: discord.ui.View, button_types: list[str], db_manager: DatabaseManager):
         message = await channel.send(embed=embed, view=view)
 
-        db_manager.save_discord_message(message.id, message.guild.id, button_types)
+        db_manager.save_discord_message(message.id, channel.id, message.guild.id, button_types)
 
         return message
             

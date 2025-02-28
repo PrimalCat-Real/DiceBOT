@@ -20,7 +20,7 @@ class DiscordBot(commands.Bot):
         await self.tree.sync()
         self.logger.info("Discord bot is ready!")
         self.logger.info('------')
-        # await self.embed_manager.restore_all_embeds(self, self.database_manager, self.logger)
+        await self.embed_manager.restore_all_embeds(self, self.database_manager, self.logger)
         # messages = self.database_manager.get_discord_messages()
         # for message_data in messages:
         #     try:
