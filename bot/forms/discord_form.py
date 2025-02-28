@@ -83,6 +83,20 @@ class DiscordForm(Form):
 
                 print(form_data)
 
+                existing_user = self.db_manager.users.find_one({"mc_username": mc_username})
+                if existing_user:
+                    update_data = {k: v for k, v in user_data.items() if k not in existing_user}
+                    if update_data:
+                        self.db_manager.users.update_one({"mc_username": mc_username}, {"$set": update_data})
+                else:
+                    self.db_manager.users.insert_one(user_data)
+
+        
+                if self.db_manager.check_form_duplicate(mc_username):
+                    await interaction.response.send_message("Анкета с таким ником уже существует", ephemeral=True)
+                    return
+
+                self.db_manager.forms.insert_one(form_data)
 
 
                 await interaction.response.send_message("Форма отправлена!", ephemeral=True)
