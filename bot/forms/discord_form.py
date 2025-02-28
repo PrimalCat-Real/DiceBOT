@@ -17,9 +17,10 @@ class DiscordForm(Form):
                 self.form = form
                 for field in form.fields:
                     if field.field_type == "text":
-                        self.add_item(discord.ui.TextInput(label=field.name, placeholder=field.placeholder, style=discord.TextStyle.short, required=field.required))
+                        self.add_item(discord.ui.TextInput(label=field.name, placeholder=field.placeholder, style=discord.TextStyle.short, required=field.required, min_length=field.min_length, max_length=field.max_length))
                     elif field.field_type == "textarea":
-                        self.add_item(discord.ui.TextInput(label=field.name, placeholder=field.placeholder, style=discord.TextStyle.paragraph, required=field.required))
+                        self.add_item(discord.ui.TextInput(label=field.name, placeholder=field.placeholder, style=discord.TextStyle.paragraph, required=field.required, min_length=field.min_length, max_length=field.max_length))
+
 
 
 
@@ -32,7 +33,6 @@ class DiscordForm(Form):
                 age = self.form.data.get("real_age", None)
                 rp_story = self.form.data.get("rp_character_story", None)
 
-                # Валидация
                 errors = {}
                 for field in FORM_FIELDS:
                     error = field.validate(self.form.data.get(field.key, ""))
