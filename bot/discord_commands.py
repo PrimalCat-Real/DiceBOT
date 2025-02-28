@@ -47,4 +47,4 @@ class CommandManager:
 
         view = EmbedManager.create_view([button])
         button_types = ['FillFormButton']
-        message = await EmbedManager.send_embed_with_view(interaction, embed, button_types, self.db_manager)
+        message = await EmbedManager.send_embed_with_view(interaction.channel, embed, view, button_types, self.db_manager)

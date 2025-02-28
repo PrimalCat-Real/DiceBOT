@@ -26,13 +26,13 @@ class EmbedManager:
         await message.edit(view=view)
 
     @staticmethod
-    async def send_embed_with_view(interaction, embed, button_types: list[str], db_manager: DatabaseManager):
-        message = await interaction.channel.send(embed=embed)
+    async def send_embed_with_view(channel: discord.TextChannel, embed, view: discord.ui.View, button_types: list[str], db_manager: DatabaseManager):
+        message = await channel.send(embed=embed, view=view)
 
         db_manager.save_discord_message(message.id, message.guild.id, button_types)
 
         return message
-        
+            
     # @staticmethod
     # async def send_embed(interaction, embed, db_manager: DatabaseManager):
     #     message = await interaction.response.send_message(embed=embed)
