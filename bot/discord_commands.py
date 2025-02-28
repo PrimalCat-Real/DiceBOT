@@ -43,7 +43,7 @@ class CommandManager:
 
     async def send_welcome_message(self, interaction: Interaction):
         embed = messages["welcome_embed"]
-        button = FillFormButton()
+        button = FillFormButton(self.db_manager)
 
         view = EmbedManager.create_view([button])
         button_types = ['FillFormButton']
