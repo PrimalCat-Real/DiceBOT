@@ -1,7 +1,8 @@
 import discord
-from discord import app_commands, Interaction
+from discord import ButtonStyle, app_commands, Interaction
 import logging
 
+from bot.buttons.fill_form_button import FillFormButton
 from bot.embed_manager import EmbedManager
 from config import messages
 from database.database import DatabaseManager
@@ -42,5 +43,7 @@ class CommandManager:
 
     async def send_welcome_message(self, interaction: Interaction):
         embed = messages["welcome_embed"]
-        await interaction.response.send_message(embed=embed)
-        self.logger.info(f"Welcome message sent to {interaction.channel.name} in {interaction.guild.name}.")
+        button = FillFormButton()
+
+        view = EmbedManager.create_view([button])
+        message = await EmbedManager.send_embed_with_view(interaction, embed, view)
