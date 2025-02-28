@@ -1,7 +1,8 @@
+import datetime
 import discord
 
 from bot.forms.form import Form
-from config import FORM_FIELDS
+from config import FORM_FIELDS, PLAYER_ROLE_ID, is_admin, is_moderator
 
 class DiscordForm(Form):
     async def create_modal(self, interaction: discord.Interaction):
@@ -10,7 +11,6 @@ class DiscordForm(Form):
                 super().__init__()
                 self.form = form
                 for field in form.fields:
-                    
                     if field.field_type == "text":
                         self.add_item(discord.ui.TextInput(label=field.name, placeholder=field.placeholder, style=discord.TextStyle.short, required=field.required))
                     elif field.field_type == "textarea":
@@ -21,6 +21,52 @@ class DiscordForm(Form):
             async def on_submit(self, interaction: discord.Interaction):
                 for i, field in enumerate(FORM_FIELDS):
                     self.form.data[field.name] = self.children[i].value
+                
+                user_id = interaction.user.id
+                mc_username = self.form.data["Ник в игре"]
+                age = self.form.data.get("Реальный Возраст", None)
+
+
+                user_roles = [role.id for role in interaction.user.roles]
+                discord_role = None
+                if any(is_admin(role_id) for role_id in user_roles):
+                    discord_role = "admin"
+                elif any(is_moderator(role_id) for role_id in user_roles):
+                    discord_role = "moderator"
+                
+                # TODO add check if some field already exist
+                # TODO check if user submit form from telegram, add in tg command for link discord
+                # TODO on tg link send in welcome form
+
+                
+
+                user_data = {
+                    "discord_name": interaction.user.name,
+                    "discord_id": user_id,
+                    "discord_created_at": interaction.user.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                    "mc_username": mc_username,
+                    "age": age,
+                    "discord_role": discord_role
+                }
+
+                form_data = {
+                    "discord_name": interaction.user.name,
+                    "discord_avatar": interaction.user.avatar.url if interaction.user.avatar else "",
+                    "discord_user_id": user_id,
+                    "discord_created_at": interaction.user.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                    "mc_username": mc_username,
+                    "age": age,
+                    "rp_experience": self.form.data.get("rp_experience", None),
+                    "rp_story": self.form.data.get("rp_character_story", None),
+                    "source_info": self.form.data.get("how_did_you_find_us", None),
+                    "submission_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    "status": "В ожидании"
+                }
+
+                print(form_data)
+
+
+
                 await interaction.response.send_message("Форма отправлена!", ephemeral=True)
                 # # Проверка наличия пользователя
                 # existing_form = forms_collection.find_one({"mc_username": self.form.data["Ник в игре"]})

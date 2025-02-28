@@ -15,11 +15,11 @@ def is_moderator(role_id):
     return role_id in moder_roles or role_id in admin_roles
 
 FORM_FIELDS = [
-    FormField("Ник в игре", "Minecraft ник, который будет добавлен в вайт-лист", max_length=24),
-    FormField("Реальный Возраст", "Ваш возраст", max_length=2, regex=r"^\d+$", required=False),
-    FormField("Опыт RP", "Нет | Минимальный | Средний | Высокий", max_length=256, required=False),
-    FormField("История персонажа RP", "История ИГРОВОГО(ВЫДУМАННОГО) персонажа, за которого вы будете отыгрывать РП", min_length=150, max_length=1024, field_type="textarea"),
-    FormField("Как вы узнали о сервере?", "Расскажите, где вы узнали о нашем сервере или от кого", max_length=1024, required=False)
+    FormField("Ник в игре", "Minecraft ник, который будет добавлен в вайт-лист", key="minecraft_username", max_length=24),
+    FormField("Реальный Возраст", "Ваш возраст", key="real_age", max_length=2, regex=r"^\d+$", required=False),
+    FormField("Опыт RP", "Нет | Минимальный | Средний | Высокий", key="rp_experience", max_length=256, required=False),
+    FormField("История персонажа RP", "История ИГРОВОГО(ВЫДУМАННОГО) персонажа, за которого вы будете отыгрывать РП", key="rp_character_story", min_length=150, max_length=1024, field_type="textarea"),
+    FormField("Как вы узнали о сервере?", "Расскажите, где вы узнали о нашем сервере или от кого", key="how_did_you_find_us", max_length=1024, required=False)
 ]
 
 messages = {
