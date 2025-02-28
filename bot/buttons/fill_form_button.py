@@ -12,4 +12,4 @@ class FillFormButton(discord.ui.Button):
 
     async def callback(self, interaction: Interaction):
         form = DiscordForm("Анкета", FORM_FIELDS, self.db_manager)
-        await form.create_modal(interaction, self.db_manager)
+        await form.create_modal(interaction)

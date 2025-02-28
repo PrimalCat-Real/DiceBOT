@@ -10,18 +10,17 @@ class DiscordForm(Form):
         super().__init__(title, fields)
         self.db_manager = db_manager
 
-    async def create_modal(self, interaction: discord.Interaction, db_manager:DatabaseManager):
+    async def create_modal(self, interaction: discord.Interaction):
         class FormModal(discord.ui.Modal, title=self.title):
-            def __init__(self, form: DiscordForm, db_manager):
+            def __init__(self, form: DiscordForm, new_db_manager: DatabaseManager):
                 super().__init__()
                 self.form = form
-                self.db_manager = db_manager
+                self.db_manager = new_db_manager
                 for field in form.fields:
                     if field.field_type == "text":
                         self.add_item(discord.ui.TextInput(label=field.name, placeholder=field.placeholder, style=discord.TextStyle.short, required=field.required, min_length=field.min_length, max_length=field.max_length))
                     elif field.field_type == "textarea":
                         self.add_item(discord.ui.TextInput(label=field.name, placeholder=field.placeholder, style=discord.TextStyle.paragraph, required=field.required, min_length=field.min_length, max_length=field.max_length))
-
 
 
 
@@ -130,4 +129,4 @@ class DiscordForm(Form):
 
                 # await interaction.response.send_message(MESSAGES["form_submitted"], ephemeral=True)
 
-        await interaction.response.send_modal(FormModal(self))
+        await interaction.response.send_modal(FormModal(self, self.db_manager))
