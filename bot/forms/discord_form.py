@@ -2,6 +2,7 @@ from datetime import datetime
 import discord
 
 from bot.forms.form import Form
+from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
 from config import FORM_FIELDS, PLAYER_ROLE_ID, is_admin, is_moderator
 from database.database import DatabaseManager
 from config import messages
@@ -99,6 +100,6 @@ class DiscordForm(Form):
 
 
                 await interaction.response.send_message("Форма отправлена!", ephemeral=True)
-                await self.form_status_embed_manager.send_status_embed(user_id, mc_username) 
+                await FormStatusEmbedManager.send_status_embed(self.client, self.db_manager, self.logger, user_id, mc_username)
 
         await interaction.response.send_modal(FormModal(self, self.db_manager))

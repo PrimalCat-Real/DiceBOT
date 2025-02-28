@@ -8,10 +8,9 @@ from config import FORM_FIELDS
 from database.database import DatabaseManager
 from config import messages
 class FillFormButton(discord.ui.Button):
-    def __init__(self, db_manager: DatabaseManager, form_status_embed_manager: FormStatusEmbedManager):
+    def __init__(self, db_manager: DatabaseManager):
         super().__init__(style=ButtonStyle.primary, label="Заполнить анкету")
         self.db_manager = db_manager
-        self.form_status_embed_manager = form_status_embed_manager
 
     async def callback(self, interaction: Interaction):
         user_id = interaction.user.id
@@ -25,5 +24,5 @@ class FillFormButton(discord.ui.Button):
             await interaction.response.send_message(messages["existing_form_error"], ephemeral=True)
             return
 
-        form = DiscordForm("Анкета", FORM_FIELDS, self.db_manager, self.form_status_embed_manager) 
+        form = DiscordForm("Анкета", FORM_FIELDS, self.db_manager) 
         await form.create_modal(interaction)

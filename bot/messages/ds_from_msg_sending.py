@@ -6,36 +6,33 @@ from config import FORM_STATUSES
 from database.database import DatabaseManager
 
 class FormStatusEmbedManager:
-    def __init__(self, client, db_manager: DatabaseManager, logger=logging):
-        self.client = client
-        self.db_manager = db_manager
-        self.logger = logger
-
-    async def send_status_embed(self, user_id: int, mc_username: str):
-        form = self.db_manager.forms.find_one({"mc_username": mc_username, "discord_user_id": user_id})
+    @staticmethod
+    async def send_status_embed(client, db_manager: DatabaseManager, logger, user_id: int, mc_username: str):
+        form = db_manager.forms.find_one({"mc_username": mc_username, "discord_user_id": user_id})
         if not form:
             return
 
         status_key = form["status"]
         status = FORM_STATUSES.get(status_key, FORM_STATUSES["pending"])
-        embed = self.create_status_embed(status, form)
+        embed = FormStatusEmbedManager.create_status_embed(status, form)
 
         try:
-            user = await self.client.fetch_user(user_id)
+            user = await client.fetch_user(user_id)
             await user.send(embed=embed)
-            self.logger.info(f"Статус анкеты для пользователя {user_id} отправлен: {status.name}")
+            logger.info(f"Статус анкеты для пользователя {user_id} отправлен: {status.name}")
         except discord.Forbidden:
-            self.logger.error(f"Не удалось отправить личное сообщение пользователю {user_id}: Forbidden")
+            logger.error(f"Не удалось отправить личное сообщение пользователю {user_id}: Forbidden")
         except discord.NotFound:
-            self.logger.error(f"Пользователь {user_id} не найден")
+            logger.error(f"Пользователь {user_id} не найден")
         except Exception as e:
-            self.logger.exception(f"Произошла ошибка при отправке статуса анкеты пользователю {user_id}: {e}")
+            logger.exception(f"Произошла ошибка при отправке статуса анкеты пользователю {user_id}: {e}")
 
+    @staticmethod
+    async def update_status_embed(client, db_manager: DatabaseManager, logger, user_id: int, mc_username: str):
+        await FormStatusEmbedManager.send_status_embed(client, db_manager, logger, user_id, mc_username)
 
-    async def update_status_embed(self, user_id: int, mc_username: str):
-        await self.send_status_embed(user_id, mc_username)
-
-    def create_status_embed(self, status: FormStatus, form: dict) -> Embed:
+    @staticmethod
+    def create_status_embed(status: FormStatus, form: dict) -> Embed:
         if status.key == "pending":
             return Embed(title=f"Статус вашей анкеты: {status.name}", description="Ваша анкета находится на рассмотрении.", color=status.color)
         elif status.key == "approved":
