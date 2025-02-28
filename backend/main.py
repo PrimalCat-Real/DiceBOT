@@ -22,7 +22,6 @@ class ConnectionRequest(BaseModel):
     username: str
     ip: str
 
-
 def remove_existing_ip(ip_address: str, sudo_password: str):
     """Удаляет существующее правило ufw для заданного IP-адреса."""
     try:
@@ -38,7 +37,7 @@ def remove_existing_ip(ip_address: str, sudo_password: str):
             raise Exception(f"Failed to delete existing rule: {stderr}")
     except Exception as e:
         raise Exception(f"Error removing existing IP: {str(e)}")
-    
+
 @app.post("/v1/allowConnectByApi")
 async def allow_connection(request: ConnectionRequest):
     ip_address = request.ip
@@ -49,12 +48,17 @@ async def allow_connection(request: ConnectionRequest):
         raise HTTPException(status_code=500, detail="Sudo password not set in .env file.")
 
     try:
+        logger.info(f"Received connection request for {mc_username} from {ip_address}")
+        logger.info(f"Searching for user {mc_username} in database...")
         user = db_manager.users.find_one({"mc_username": mc_username})
+        logger.info(f"Search result: {user}")
+
         if not user:
+            logger.error(f"User {mc_username} not found.")
             raise HTTPException(status_code=404, detail="User not found.")
 
-        # Удаление существующего IP, если он есть
         if "last_ip" in user and user["last_ip"]:
+            logger.info(f"User {mc_username} has existing last_ip: {user['last_ip']}")
             try:
                 remove_existing_ip(user["last_ip"], sudo_password)
                 logger.info(f"Existing IP {user['last_ip']} removed for user {mc_username}.")
@@ -62,11 +66,11 @@ async def allow_connection(request: ConnectionRequest):
                 logger.error(f"Error removing existing IP for user {mc_username}: {str(e)}")
                 raise HTTPException(status_code=500, detail=f"Error removing existing IP: {str(e)}")
 
-        # Обновление last_ip пользователя
-        db_manager.users.update_one({"_id": user["_id"]}, {"$set": {"last_ip": ip_address}})
-        logger.info(f"Updated last_ip to {ip_address} for user {mc_username}.")
+        logger.info(f"Updating last_ip to {ip_address} for user {mc_username}.")
+        update_result = db_manager.users.update_one({"_id": user["_id"]}, {"$set": {"last_ip": ip_address}})
+        logger.info(f"Update result: {update_result.modified_count} documents modified.")
 
-        # Добавление нового правила ufw
+        logger.info(f"Allowing connection from {ip_address} to port 25565.")
         process_allow = subprocess.Popen(
             ["sudo", "-S", "ufw", "allow", "from", ip_address, "to", "any", "port", "25565"],
             stdin=subprocess.PIPE,
@@ -87,7 +91,6 @@ async def allow_connection(request: ConnectionRequest):
     except Exception as e:
         logger.error(f"An unexpected error occurred for user {mc_username}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
-
 
 if __name__ == "__main__":
     import uvicorn
