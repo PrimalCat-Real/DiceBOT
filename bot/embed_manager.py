@@ -26,36 +26,21 @@ class EmbedManager:
         await message.edit(view=view)
 
     @staticmethod
-    async def send_embed_with_view(interaction, embed, button_types, db_manager: DatabaseManager):
-        view = discord.ui.View()
-        for button_type_name in button_types:
-            button_class = EmbedManager.BUTTON_TYPES.get(button_type_name)
-            if button_class:
-                if button_type_name == 'discord.ui.Button':
-                    button = button_class(style=discord.ButtonStyle.primary, label="Button")
-                else:
-                    button = button_class()
-                view.add_item(button)
+    async def send_embed_with_view(interaction, embed, button_types: list[str], db_manager: DatabaseManager):
+        message = await interaction.channel.send(embed=embed, view=discord.ui.View())
 
-        message = await interaction.response.send_message(embed=embed, view=view)
-        message = await interaction.original_response()
-
-        embed_dict = embed.to_dict()
-        db_manager.save_discord_message(message.id, message.channel.id, message.guild.id, embed_dict, button_types)
+        db_manager.save_discord_message(message.id, message.guild.id, button_types)
 
         return message
+        
+    # @staticmethod
+    # async def send_embed(interaction, embed, db_manager: DatabaseManager):
+    #     message = await interaction.response.send_message(embed=embed)
+    #     message = await interaction.original_response()
 
-    @staticmethod
-    async def send_embed(interaction, embed, db_manager: DatabaseManager):
-        message = await interaction.response.send_message(embed=embed)
-        message = await interaction.original_response()
+    #     db_manager.save_discord_message(message.id, message.guild.id, [])
 
-        # Сохранение эмбеда (без кнопок)
-        embed_dict = embed.to_dict()
-        db_manager.save_discord_message(message.id, message.channel.id, message.guild.id, embed_dict, None)
-
-        return message
-
+    #     return message
     # @staticmethod
     # async def send_embed_with_view(interaction, embed, view):
     #     await interaction.response.send_message(embed=embed, view=view)
@@ -98,8 +83,7 @@ class EmbedManager:
                 channel = bot.get_channel(message_data['channel_id'])
                 message = await channel.fetch_message(message_data['message_id'])
 
-                embed = discord.Embed.from_dict(message_data['embed_data'])
-                button_types = message_data.get('view_data', [])
+                button_types = message_data.get('button_types', [])
                 view = discord.ui.View()
 
                 for button_type_name in button_types:
@@ -111,7 +95,7 @@ class EmbedManager:
                             button = button_class()
                         view.add_item(button)
 
-                await message.edit(embed=embed, view=view)
-                logger.info(f"Restored embed and view for message {message.id} in channel {channel.id}.")
+                await message.edit(view=view)
+                logger.info(f"Restored view for message {message.id} in channel {channel.id}.")
             except Exception as e:
-                logger.error(f"Error restoring embed and view for message {message_data['message_id']}: {e}")
+                logger.error(f"Error restoring view for message {message_data['message_id']}: {e}")

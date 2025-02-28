@@ -43,6 +43,8 @@ class CommandManager:
 
     async def send_welcome_message(self, interaction: Interaction):
         embed = messages["welcome_embed"]
+        button = FillFormButton()
+
+        view = EmbedManager.create_view([button])
         button_types = ['FillFormButton']
-        view = EmbedManager.create_view([EmbedManager.BUTTON_TYPES[button_type] for button_type in button_types])
         message = await EmbedManager.send_embed_with_view(interaction, embed, button_types, self.db_manager)

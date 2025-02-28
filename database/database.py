@@ -20,15 +20,13 @@ class DatabaseManager:
             self.discord_embeds = None
         assert self.client is not None, "Cannot connect to MongoDB"
         
-    def save_discord_message(self, message_id, channel_id, guild_id, embed_data, view_data=None):
+    def save_discord_message(self, message_id, guild_id, button_types: list[str]):
         self.discord_embeds.update_one(
             {'message_id': message_id},
             {'$set': {
                 'message_id': message_id,
-                'channel_id': channel_id,
                 'guild_id': guild_id,
-                'embed_data': embed_data,
-                'view_data': view_data
+                'button_types': button_types
             }},
             upsert=True
         )
