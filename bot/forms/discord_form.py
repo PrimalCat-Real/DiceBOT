@@ -16,6 +16,7 @@ class DiscordForm(Form):
                         self.add_item(discord.ui.TextInput(label=field.name, placeholder=field.placeholder, style=discord.TextStyle.paragraph, required=field.required))
 
 
+
             async def on_submit(self, interaction: discord.Interaction):
                 for i, field in enumerate(FORM_FIELDS):
                     self.form.data[field.name] = self.children[i].value

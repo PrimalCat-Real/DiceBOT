@@ -9,5 +9,5 @@ class FillFormButton(discord.ui.Button):
         super().__init__(style=ButtonStyle.primary, label="Заполнить анкету")
 
     async def callback(self, interaction: Interaction):
-        form = DiscordForm("Форма", FORM_FIELDS)
+        form = DiscordForm("Анкета", FORM_FIELDS)
         await form.create_modal(interaction)
