@@ -11,5 +11,16 @@ class FillFormButton(discord.ui.Button):
         self.db_manager = db_manager
 
     async def callback(self, interaction: Interaction):
+        user_id = interaction.user.id
+        discord_name = interaction.user.name
+        existing_form = self.db_manager.forms.find_one({
+            "discord_user_id": user_id,
+            "status": {"$in": ["В ожидании", "Одобрено"]}
+        })
+
+        if existing_form:
+            await interaction.response.send_message("У вас уже есть анкета в обработке или одобрена.", ephemeral=True)
+            return
+
         form = DiscordForm("Анкета", FORM_FIELDS, self.db_manager)
         await form.create_modal(interaction)
