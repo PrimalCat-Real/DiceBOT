@@ -42,3 +42,9 @@ class Form:
 
     def get_data(self):
         return self.data
+    
+class FormStatus:
+    def __init__(self, key: str, name: str, color):
+        self.key = key
+        self.name = name
+        self.color = color

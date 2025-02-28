@@ -1,6 +1,6 @@
-from discord import Embed
+from discord import Color, Embed
 
-from bot.forms.form import FormField
+from bot.forms.form import FormField, FormStatus
 
 PLAYER_ROLE_ID = 1294631037212688548
 RULES_CHANNEL_ID = 1294627794571100200
@@ -22,6 +22,13 @@ FORM_FIELDS = [
     FormField("Как вы узнали о сервере?", "Расскажите, где вы узнали о нашем сервере или от кого", key="how_did_you_find_us", max_length=1024, required=False)
 ]
 
+FORM_STATUSES = {
+    "pending": FormStatus("pending", "В ожидании", 0xFFCA3A),
+    "approved": FormStatus("approved", "Одобрено", 0x2ECF03),
+    "rejected": FormStatus("rejected", "Отклонено", 0xFF595E),
+    "deleted": FormStatus("deleted", "Удалено", 0x808080),
+}
+
 messages = {
     "welcome_embed": Embed(
             title="Регистрация на сервере Dice | RP 🎲",
@@ -35,5 +42,7 @@ messages = {
                 f"Удачи в регистрации! 🎉"
             ),
             color=0x9535C9
-        )
+        ),
+    "existing_form_error": "У вас уже есть анкета",
+    "existing_form_nick_error": "Анкета с таким ником уже существует"
 }

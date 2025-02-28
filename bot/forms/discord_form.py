@@ -4,6 +4,7 @@ import discord
 from bot.forms.form import Form
 from config import FORM_FIELDS, PLAYER_ROLE_ID, is_admin, is_moderator
 from database.database import DatabaseManager
+from config import messages
 
 class DiscordForm(Form):
     def __init__(self, title, fields, db_manager: DatabaseManager):
@@ -81,8 +82,6 @@ class DiscordForm(Form):
                     "status": "В ожидании"
                 }
 
-                print(form_data)
-
                 existing_user = self.db_manager.users.find_one({"mc_username": mc_username})
                 if existing_user:
                     update_data = {k: v for k, v in user_data.items() if k not in existing_user}
@@ -93,12 +92,13 @@ class DiscordForm(Form):
 
         
                 if self.db_manager.check_form_duplicate(mc_username):
-                    await interaction.response.send_message("Анкета с таким ником уже существует", ephemeral=True)
+                    await interaction.response.send_message(messages["existing_form_nick_error"], ephemeral=True)
                     return
 
                 self.db_manager.forms.insert_one(form_data)
 
 
                 await interaction.response.send_message("Форма отправлена!", ephemeral=True)
+                await self.form_status_embed_manager.send_status_embed(user_id, mc_username) 
 
         await interaction.response.send_modal(FormModal(self, self.db_manager))

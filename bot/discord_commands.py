@@ -4,6 +4,7 @@ import logging
 
 from bot.buttons.fill_form_button import FillFormButton
 from bot.embed_manager import EmbedManager
+from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
 from config import messages
 from database.database import DatabaseManager
 class CommandManager:
@@ -12,6 +13,7 @@ class CommandManager:
         self.db_manager = db_manager
         self.logger = logger
         self.embed_manager = EmbedManager()
+        
         self.setup_commands()
 
     def setup_commands(self):
