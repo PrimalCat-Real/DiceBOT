@@ -26,14 +26,22 @@ class EmbedManager:
         await message.edit(view=view)
 
     @staticmethod
-    async def send_embed_with_view(interaction, embed, view, db_manager: DatabaseManager):
+    async def send_embed_with_view(interaction, embed, button_types, db_manager: DatabaseManager):
+        view = discord.ui.View()
+        for button_type_name in button_types:
+            button_class = EmbedManager.BUTTON_TYPES.get(button_type_name)
+            if button_class:
+                if button_type_name == 'discord.ui.Button':
+                    button = button_class(style=discord.ButtonStyle.primary, label="Button")
+                else:
+                    button = button_class()
+                view.add_item(button)
+
         message = await interaction.response.send_message(embed=embed, view=view)
         message = await interaction.original_response()
 
-        # Сохранение эмбеда и кнопок
         embed_dict = embed.to_dict()
-        serialized_view = EmbedManager.serialize_view(view)
-        db_manager.save_discord_message(message.id, message.channel.id, message.guild.id, embed_dict, serialized_view)
+        db_manager.save_discord_message(message.id, message.channel.id, message.guild.id, embed_dict, button_types)
 
         return message
 
@@ -58,41 +66,7 @@ class EmbedManager:
     #     await interaction.response.send_message(embed=embed)
     #     return await interaction.original_response()
 
-    @staticmethod
-    def serialize_view(view: discord.ui.View):
-        if view is None or len(view.children) == 0:
-            return None
-        button_data = []
-        for item in view.children:
-            print(item)
-            # for button_type_name, button_class in EmbedManager.BUTTON_TYPES.items():
-            #     if isinstance(item, button_class):
-            #         if button_type_name == 'discord.ui.Button':
-            #             button_data.append({
-            #                 'type': button_type_name,
-            #                 'style': item.style.value,
-            #                 'label': item.label,
-            #                 'custom_id': item.custom_id,
-            #                 'url': item.url,
-            #                 'disabled': item.disabled,
-            #                 'emoji': str(item.emoji) if item.emoji else None
-            #             })
-            #         else:
-            #             button_data.append({
-            #                 'type': button_type_name,
-            #             })
-            #         break
-        return button_data
 
-
-    @staticmethod
-    def deserialize_view(button_data):
-        if not button_data:
-            return None
-        button_instances = []
-        for button_info in button_data:
-            button_instances.append(button_info)
-        return button_instances
     # @staticmethod
     # def deserialize_view(button_data):
     #     if not button_data:
@@ -125,26 +99,17 @@ class EmbedManager:
                 message = await channel.fetch_message(message_data['message_id'])
 
                 embed = discord.Embed.from_dict(message_data['embed_data'])
-                button_instances = EmbedManager.deserialize_view(message_data['view_data'])
+                button_types = message_data.get('view_data', [])
                 view = discord.ui.View()
 
-                if button_instances:
-                    for button_info in button_instances:
-                        button_type_name = button_info['type']
-                        button_class = EmbedManager.BUTTON_TYPES.get(button_type_name)
-                        if button_class:
-                            if button_type_name == 'discord.ui.Button':
-                                button = button_class(
-                                    style=discord.ButtonStyle(button_info['style']),
-                                    label=button_info.get('label'),
-                                    custom_id=button_info.get('custom_id'),
-                                    url=button_info.get('url'),
-                                    disabled=button_info.get('disabled', False),
-                                    emoji=button_info.get('emoji')
-                                )
-                            else:
-                                button = button_class()
-                            view.add_item(button)
+                for button_type_name in button_types:
+                    button_class = EmbedManager.BUTTON_TYPES.get(button_type_name)
+                    if button_class:
+                        if button_type_name == 'discord.ui.Button':
+                            button = button_class(style=discord.ButtonStyle.primary, label="Button")
+                        else:
+                            button = button_class()
+                        view.add_item(button)
 
                 await message.edit(embed=embed, view=view)
                 logger.info(f"Restored embed and view for message {message.id} in channel {channel.id}.")

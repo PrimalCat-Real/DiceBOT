@@ -43,7 +43,8 @@ class CommandManager:
 
     async def send_welcome_message(self, interaction: Interaction):
         embed = messages["welcome_embed"]
-        button = FillFormButton()
+        # button = FillFormButton()
 
-        view = EmbedManager.create_view([button])
-        message = await EmbedManager.send_embed_with_view(interaction, embed, view, self.db_manager)
+        view = EmbedManager.create_view()
+        button_types = ['FillFormButton', 'discord.ui.Button']
+        message = await EmbedManager.send_embed_with_view(interaction, embed, button_types, self.db_manager)
