@@ -1,7 +1,7 @@
 import re
 
 class FormField:
-    def __init__(self, name, placeholder, min_length=None, max_length=None, regex=None, required=True, field_type="text"):
+    def __init__(self, name, placeholder, min_length=None, max_length=None, regex=None, required=True, key=None, field_type="text"):
         self.name = name
         self.placeholder = placeholder
         self.min_length = min_length
@@ -9,6 +9,7 @@ class FormField:
         self.regex = regex
         self.required = required
         self.field_type = field_type
+        self.key = key if key else name.lower().replace(" ", "_") 
 
     def validate(self, value):
         if not self.required and not value:
