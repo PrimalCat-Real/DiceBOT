@@ -7,7 +7,7 @@ from database.database import DatabaseManager
 
 class FormStatusEmbedManager:
     @staticmethod
-    async def send_status_embed(client, db_manager: DatabaseManager, logger, user_id: int, mc_username: str):
+    async def send_status_embed(client, db_manager: DatabaseManager, user_id: int, mc_username: str):
         form = db_manager.forms.find_one({"mc_username": mc_username, "discord_user_id": user_id})
         if not form:
             return
@@ -19,13 +19,13 @@ class FormStatusEmbedManager:
         try:
             user = await client.fetch_user(user_id)
             await user.send(embed=embed)
-            logger.info(f"Статус анкеты для пользователя {user_id} отправлен: {status.name}")
-        except discord.Forbidden:
-            logger.error(f"Не удалось отправить личное сообщение пользователю {user_id}: Forbidden")
-        except discord.NotFound:
-            logger.error(f"Пользователь {user_id} не найден")
+            print(f"Статус анкеты для пользователя {user_id} отправлен: {status.name}")
+        # except discord.Forbidden:
+        #     logger.error(f"Не удалось отправить личное сообщение пользователю {user_id}: Forbidden")
+        # except discord.NotFound:
+        #     logger.error(f"Пользователь {user_id} не найден")
         except Exception as e:
-            logger.exception(f"Произошла ошибка при отправке статуса анкеты пользователю {user_id}: {e}")
+            print(f"Произошла ошибка при отправке статуса анкеты пользователю {user_id}: {e}")
 
     @staticmethod
     async def update_status_embed(client, db_manager: DatabaseManager, logger, user_id: int, mc_username: str):

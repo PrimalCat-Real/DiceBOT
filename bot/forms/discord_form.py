@@ -100,6 +100,6 @@ class DiscordForm(Form):
 
 
                 await interaction.response.send_message("Форма отправлена!", ephemeral=True)
-                await FormStatusEmbedManager.send_status_embed(self.client, self.db_manager, self.logger, user_id, mc_username)
+                await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, user_id, mc_username)
 
         await interaction.response.send_modal(FormModal(self, self.db_manager))
