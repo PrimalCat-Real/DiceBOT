@@ -110,6 +110,7 @@ class EmbedManager:
         messages = db_manager.get_discord_messages()
         for message_data in messages:
             try:
+                logger.info(message_data)
                 channel = bot.get_channel(message_data['channel_id'])
                 message = await channel.fetch_message(message_data['message_id'])
 
