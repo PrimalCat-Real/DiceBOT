@@ -27,7 +27,7 @@ class EmbedManager:
 
     @staticmethod
     async def send_embed_with_view(interaction, embed, button_types: list[str], db_manager: DatabaseManager):
-        message = await interaction.channel.send(embed=embed, view=discord.ui.View())
+        message = await interaction.channel.send(embed=embed)
 
         db_manager.save_discord_message(message.id, message.guild.id, button_types)
 
