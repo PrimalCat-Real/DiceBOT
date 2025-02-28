@@ -1,14 +1,19 @@
 import re
 
 class FormField:
-    def __init__(self, name, placeholder, min_length=None, max_length=None, regex=None):
+    def __init__(self, name, placeholder, min_length=None, max_length=None, regex=None, required=True, field_type="text"):
         self.name = name
         self.placeholder = placeholder
         self.min_length = min_length
         self.max_length = max_length
         self.regex = regex
+        self.required = required
+        self.field_type = field_type
 
     def validate(self, value):
+        if not self.required and not value:
+            return None
+
         if self.min_length and len(value) < self.min_length:
             return f"Минимальная длина поля '{self.name}' - {self.min_length} символов."
         if self.max_length and len(value) > self.max_length:

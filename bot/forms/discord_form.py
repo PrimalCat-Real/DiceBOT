@@ -10,11 +10,13 @@ class DiscordForm(Form):
                 super().__init__()
                 self.form = form
                 for field in form.fields:
-                    self.add_item(discord.ui.TextInput(label=field.name, placeholder=field.placeholder))
+                    if field.field_type == "text":
+                        self.add_item(discord.ui.TextInput(label=field.name, placeholder=field.placeholder, required=field.required))
+                    elif field.field_type == "textarea":
+                        self.add_item(discord.ui.TextInput(label=field.name, placeholder=field.placeholder, style=discord.TextStyle.paragraph, required=field.required))
 
 
             async def on_submit(self, interaction: discord.Interaction):
-                pass
                 for i, field in enumerate(FORM_FIELDS):
                     self.form.data[field.name] = self.children[i].value
                 await interaction.response.send_message("Форма отправлена!", ephemeral=True)
