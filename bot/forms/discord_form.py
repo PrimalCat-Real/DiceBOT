@@ -10,7 +10,7 @@ class DiscordForm(Form):
                 super().__init__()
                 self.form = form
                 for field in form.fields:
-                    print(field)
+                    
                     if field.field_type == "text":
                         self.add_item(discord.ui.TextInput(label=field.name, placeholder=field.placeholder, style=discord.TextStyle.short, required=field.required))
                     elif field.field_type == "textarea":
