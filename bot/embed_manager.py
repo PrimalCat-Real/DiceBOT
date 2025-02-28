@@ -64,23 +64,24 @@ class EmbedManager:
             return None
         button_data = []
         for item in view.children:
-            for button_type_name, button_class in EmbedManager.BUTTON_TYPES.items():
-                if isinstance(item, button_class):
-                    if button_type_name == 'discord.ui.Button':
-                        button_data.append({
-                            'type': button_type_name,
-                            'style': item.style.value,
-                            'label': item.label,
-                            'custom_id': item.custom_id,
-                            'url': item.url,
-                            'disabled': item.disabled,
-                            'emoji': str(item.emoji) if item.emoji else None
-                        })
-                    else:
-                        button_data.append({
-                            'type': button_type_name,
-                        })
-                    break
+            print(item)
+            # for button_type_name, button_class in EmbedManager.BUTTON_TYPES.items():
+            #     if isinstance(item, button_class):
+            #         if button_type_name == 'discord.ui.Button':
+            #             button_data.append({
+            #                 'type': button_type_name,
+            #                 'style': item.style.value,
+            #                 'label': item.label,
+            #                 'custom_id': item.custom_id,
+            #                 'url': item.url,
+            #                 'disabled': item.disabled,
+            #                 'emoji': str(item.emoji) if item.emoji else None
+            #             })
+            #         else:
+            #             button_data.append({
+            #                 'type': button_type_name,
+            #             })
+            #         break
         return button_data
 
 
