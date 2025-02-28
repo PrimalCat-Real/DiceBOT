@@ -1,6 +1,7 @@
 import discord
 import json
-from bot.buttons.fill_form_button import FillFormButton  # Импортируйте ваши кастомные кнопки
+from bot.buttons.fill_form_button import FillFormButton
+from database.database import DatabaseManager  # Импортируйте ваши кастомные кнопки
 
 class EmbedManager:
 
@@ -25,14 +26,37 @@ class EmbedManager:
         await message.edit(view=view)
 
     @staticmethod
-    async def send_embed_with_view(interaction, embed, view):
-        await interaction.response.send_message(embed=embed, view=view)
-        return await interaction.original_response()
+    async def send_embed_with_view(interaction, embed, view, db_manager: DatabaseManager):
+        message = await interaction.response.send_message(embed=embed, view=view)
+        message = await interaction.original_response()
+
+        # Сохранение эмбеда и кнопок
+        embed_dict = embed.to_dict()
+        serialized_view = EmbedManager.serialize_view(view)
+        db_manager.save_discord_message(message.id, message.channel.id, message.guild.id, embed_dict, serialized_view)
+
+        return message
 
     @staticmethod
-    async def send_embed(interaction, embed):
-        await interaction.response.send_message(embed=embed)
-        return await interaction.original_response()
+    async def send_embed(interaction, embed, db_manager: DatabaseManager):
+        message = await interaction.response.send_message(embed=embed)
+        message = await interaction.original_response()
+
+        # Сохранение эмбеда (без кнопок)
+        embed_dict = embed.to_dict()
+        db_manager.save_discord_message(message.id, message.channel.id, message.guild.id, embed_dict, None)
+
+        return message
+
+    # @staticmethod
+    # async def send_embed_with_view(interaction, embed, view):
+    #     await interaction.response.send_message(embed=embed, view=view)
+    #     return await interaction.original_response()
+
+    # @staticmethod
+    # async def send_embed(interaction, embed):
+    #     await interaction.response.send_message(embed=embed)
+    #     return await interaction.original_response()
 
     @staticmethod
     def serialize_view(view: discord.ui.View):
