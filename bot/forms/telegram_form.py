@@ -1,3 +1,4 @@
+import logging
 from aiogram import types
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -113,32 +114,46 @@ class TelegramForm:
             await self.finish_form(message, state)
     
     async def send_form_to_discord(self, form_data):
-
+        logging.info("Starting send_form_to_discord...")
         guild_id = 993224057464041552  # Замените на ID вашего сервера
         decision_channel_id = self.db_manager.get_decision_channel_id(guild_id)
+        if not guild_id:
+            logging.warning("Guild ID not found in database.")
+            return
 
-        if decision_channel_id:
+        if not decision_channel_id:
+            logging.warning(f"Decision channel ID not found for guild {guild_id}.")
+            return
+        
+        try:
             from main import discord_bot_instance
             decision_channel = discord_bot_instance.get_channel(decision_channel_id)
-            if decision_channel:
-                embed = discord.Embed(title="Анкета (Telegram)", color=0x2AABEE)  # Синий цвет Telegram
-                embed.set_author(name=form_data['telegram_name'], icon_url="https://static.vecteezy.com/system/resources/previews/023/986/562/non_2x/telegram-logo-telegram-logo-transparent-telegram-icon-transparent-free-free-png.png")
 
-                embed.add_field(name="Ник Minecraft", value=form_data['mc_username'], inline=False)
-                embed.add_field(name="Возраст", value=form_data['age'], inline=False)
-                embed.add_field(name="RP опыт", value=form_data['rp_experience'], inline=False)
-                embed.add_field(name="RP история персонажа", value=form_data['rp_story'], inline=False)
-                embed.add_field(name="Как вы нас нашли", value=form_data['source_info'], inline=False)
-                embed.add_field(name="Время подачи", value=form_data['submission_time'], inline=False)
+            if not decision_channel:
+                logging.warning(f"Decision channel with ID {decision_channel_id} not found.")
+                return
 
-                # Проверка схожести анкет
-                similarity_message = PenddingFormEmbedManager.check_rp_story_similarity(form_data, self.db_manager)
-                embed.add_field(name="Схожесть анкет", value=similarity_message, inline=False)
+            embed = discord.Embed(title="Анкета (Telegram)", color=0x2AABEE)
+            embed.set_author(name=form_data['telegram_name'], icon_url="https://static.vecteezy.com/system/resources/previews/023/986/562/non_2x/telegram-logo-telegram-logo-transparent-telegram-icon-transparent-free-free-png.png")
 
-                form_status = FORM_STATUSES[form_data["status"]]
-                embed.add_field(name="Статус", value=form_status.name, inline=False)
+            embed.add_field(name="Ник Minecraft", value=form_data['mc_username'], inline=False)
+            embed.add_field(name="Возраст", value=form_data['age'], inline=False)
+            embed.add_field(name="RP опыт", value=form_data['rp_experience'], inline=False)
+            embed.add_field(name="RP история персонажа", value=form_data['rp_story'], inline=False)
+            embed.add_field(name="Как вы нас нашли", value=form_data['source_info'], inline=False)
+            embed.add_field(name="Время подачи", value=form_data['submission_time'], inline=False)
 
-                await decision_channel.send(embed=embed)
+            similarity_message = PenddingFormEmbedManager.check_rp_story_similarity(form_data, self.db_manager)
+            embed.add_field(name="Схожесть анкет", value=similarity_message, inline=False)
+
+            form_status = FORM_STATUSES[form_data["status"]]
+            embed.add_field(name="Статус", value=form_status.name, inline=False)
+
+            await decision_channel.send(embed=embed)
+            logging.info(f"Form sent to Discord channel {decision_channel_id}.")
+
+        except Exception as e:
+            logging.error(f"Error sending form to Discord: {e}", exc_info=True)
 
 from aiogram.fsm.state import StatesGroup, State
 
