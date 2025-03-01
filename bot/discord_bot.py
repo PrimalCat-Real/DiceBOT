@@ -9,7 +9,6 @@ from bot.embed_manager import EmbedManager
 from database.database import DatabaseManager
 import logging
 
-from main import GEMINI_KEY
 
 # API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_KEY}"
 
