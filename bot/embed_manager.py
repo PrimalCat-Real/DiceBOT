@@ -1,5 +1,6 @@
 import discord
 import json
+from bot.buttons.accept_form_button import AcceptFormButton
 from bot.buttons.fill_form_button import FillFormButton
 from database.database import DatabaseManager  # Импортируйте ваши кастомные кнопки
 
@@ -8,6 +9,7 @@ class EmbedManager:
     BUTTON_TYPES = {
         'discord.ui.Button': discord.ui.Button,
         'FillFormButton': FillFormButton,
+        'AcceptFormButton': AcceptFormButton,
     }
 
     @staticmethod
