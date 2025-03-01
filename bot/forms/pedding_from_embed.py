@@ -1,5 +1,6 @@
 from difflib import SequenceMatcher
 from discord import Embed
+import discord
 # from bot.buttons.accept_form_button import AcceptFormButton
 
 
@@ -104,3 +105,5 @@ class TelegramFormStatusEmbedManager:
             return f"Статус вашей анкеты: {status.name}\nВаша анкета была удалена."
         else:
             return "Статус вашей анкеты: Неизвестно\nСтатус вашей анкеты не определен."
+    
+    

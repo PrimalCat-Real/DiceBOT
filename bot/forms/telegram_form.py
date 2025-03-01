@@ -3,9 +3,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from datetime import datetime
 
-from bot.forms.pedding_from_embed import TelegramFormStatusEmbedManager
+import discord
+
+from bot.forms.pedding_from_embed import PenddingFormEmbedManager, TelegramFormStatusEmbedManager
 from database.database import DatabaseManager
-from config import FORM_FIELDS
+from config import FORM_FIELDS, FORM_STATUSES
 
 class TelegramForm:
     def __init__(self, bot, db_manager: DatabaseManager):
@@ -57,7 +59,8 @@ class TelegramForm:
         self.db_manager.forms.update_one({"mc_username": mc_username}, {"$set": form_data})
 
         # self.db_manager.forms.insert_one(form_data)
-        await TelegramFormStatusEmbedManager.send_status_message(self.bot, self.db_manager, user_id, mc_username) # Отправляем уведомление
+        await TelegramFormStatusEmbedManager.send_status_message(self.bot, self.db_manager, user_id, mc_username)
+        await self.send_form_to_discord(self.bot.get("discord_client"), form_data)
 
         await message.answer("Анкета отправлена!")
 
@@ -102,6 +105,33 @@ class TelegramForm:
             await message.answer(self.fields[self.current_field_index].name)
         else:
             await self.finish_form(message, state)
+    
+    async def send_form_to_discord(self, client, form_data):
+
+        guild_id = 993224057464041552  # Замените на ID вашего сервера
+        decision_channel_id = self.db_manager.get_decision_channel_id(guild_id)
+
+        if decision_channel_id:
+            decision_channel = client.get_channel(decision_channel_id)
+            if decision_channel:
+                embed = discord.Embed(title="Анкета (Telegram)", color=0x2AABEE)  # Синий цвет Telegram
+                embed.set_author(name=form_data['telegram_name'], icon_url="https://static.vecteezy.com/system/resources/previews/023/986/562/non_2x/telegram-logo-telegram-logo-transparent-telegram-icon-transparent-free-free-png.png")
+
+                embed.add_field(name="Ник Minecraft", value=form_data['mc_username'], inline=False)
+                embed.add_field(name="Возраст", value=form_data['age'], inline=False)
+                embed.add_field(name="RP опыт", value=form_data['rp_experience'], inline=False)
+                embed.add_field(name="RP история персонажа", value=form_data['rp_story'], inline=False)
+                embed.add_field(name="Как вы нас нашли", value=form_data['source_info'], inline=False)
+                embed.add_field(name="Время подачи", value=form_data['submission_time'], inline=False)
+
+                # Проверка схожести анкет
+                similarity_message = PenddingFormEmbedManager.check_rp_story_similarity(form_data, self.db_manager)
+                embed.add_field(name="Схожесть анкет", value=similarity_message, inline=False)
+
+                form_status = FORM_STATUSES[form_data["status"]]
+                embed.add_field(name="Статус", value=form_status.name, inline=False)
+
+                await decision_channel.send(embed=embed)
 
 from aiogram.fsm.state import StatesGroup, State
 

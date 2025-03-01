@@ -34,19 +34,23 @@ async def run_discord_bot():
     await discord_bot.run_bot()
 
 async def run_telegram_bot():
-    telegram_bot = TelegramBot(token=TELEGRAM_TOKEN, logger=logger, database_manager=db_manager)
+    telegram_bot = TelegramBot(token=TELEGRAM_TOKEN, logger=logger, database_manager=db_manager, discord_client=discord_bot)
     await telegram_bot.run_bot()
 
 async def main():
     discord_task = asyncio.create_task(run_discord_bot())
-    telegram_task = asyncio.create_task(run_telegram_bot())
     try:
-        await asyncio.gather(discord_task, telegram_task)
+        await discord_task  # Дожидаемся завершения discord_task
+        telegram_task = asyncio.create_task(run_telegram_bot())
+        await asyncio.gather(telegram_task)
     except KeyboardInterrupt:
         logger.info("Main process interrupted by keyboard.")
         discord_task.cancel()
-        telegram_task.cancel()
+        if 'telegram_task' in locals():
+            telegram_task.cancel()
         await discord_task
+        if 'telegram_task' in locals():
+            await telegram_task
     except Exception as e:
         logger.exception(f"Error in main: {e}")
     finally:
