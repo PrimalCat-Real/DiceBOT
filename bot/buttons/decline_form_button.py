@@ -24,9 +24,14 @@ class DeclineFormButton(discord.ui.Button):
                 await self.process_decline(interaction, reason)
 
             async def process_decline(self, interaction, reason):
-                self.db_manager.forms.update_one({"mc_username": self.form_data["mc_username"]}, {"$set": {"status": "rejected", "rejected_by": interaction.user.id, "rejected_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'), "reason": reason}})
+                self.db_manager.forms.update_one({"mc_username": self.form_data["mc_username"]},
+                                                 {"$set": {"status": "rejected", "rejected_by": interaction.user.id,
+                                                           "rejected_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                                                           "reason": reason}})
                 embed = interaction.message.embeds[0]
-                embed.set_field_at(embed.fields.index(next(field for field in embed.fields if field.name == "Статус")), name="Статус", value=FORM_STATUSES["rejected"].name)
+                embed.set_field_at(embed.fields.index(
+                    next(field for field in embed.fields if field.name == "Статус")), name="Статус",
+                                   value=FORM_STATUSES["rejected"].name)
                 embed.add_field(name="Отклонено", value=f"<@{interaction.user.id}>", inline=False)
                 embed.add_field(name="Время отклонения", value=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), inline=False)
                 embed.add_field(name="Причина", value=reason, inline=False)
@@ -35,7 +40,9 @@ class DeclineFormButton(discord.ui.Button):
 
                 await interaction.response.edit_message(embed=embed, view=None)
                 self.db_manager.discord_embeds.delete_one({"message_id": interaction.message.id})
-                await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, int(self.form_data["discord_user_id"]), self.form_data["mc_username"])
+                user_id = self.form_data.get("discord_user_id") or self.form_data.get("telegram_user_id")
+                # await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, user_id,
+                #                                               self.form_data["mc_username"])
                 await self.update_user_status_change(interaction.user.id, self.form_data["mc_username"])
                 self.db_manager.delete_form(self.form_data["mc_username"])
 
