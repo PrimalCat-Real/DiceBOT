@@ -3,14 +3,11 @@ import discord
 import os
 import signal
 from dotenv import load_dotenv
-import requests
 
 from bot.discord_bot import DiscordBot
 from bot.telegram_bot import TelegramBot
 from database.database import DatabaseManager
 from logs import logging_config
-from openai import OpenAI
-from requests import request
 
 # completion = client.chat.completions.create(
 #     model="gpt-4o",
