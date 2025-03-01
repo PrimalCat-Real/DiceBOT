@@ -17,7 +17,7 @@ class TelegramBot:
         self.discord_client = discord_client
 
     async def start(self, message: types.Message, state: FSMContext):
-        await self.form.start_form(message, state)
+        await self.form.start_form(message, state, self.discord_client)
 
     async def process_answer(self, message: types.Message, state: FSMContext):
         await self.form.process_answer(message, state)
