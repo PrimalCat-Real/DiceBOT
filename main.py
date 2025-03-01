@@ -12,6 +12,9 @@ from logs import logging_config
 load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+RCON_PORT = os.getenv("RCON_PORT")
+RCON_HOST = os.getenv("RCON_HOST")
+RCON_PASSWORD = os.getenv("RCON_PASSWORD")
 connection_string = os.getenv("MONGODB")
 
 logger = logging_config.setup_logging()
