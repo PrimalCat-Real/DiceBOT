@@ -11,9 +11,10 @@ class AcceptFormButton(discord.ui.Button):
 
     async def callback(self, interaction: discord.Interaction):
         class ReasonModal(discord.ui.Modal, title="Обновление статуса"):
-            def __init__(self, db_manager):
+            def __init__(self, db_manager, form_data):
                 super().__init__()
                 self.db_manager = db_manager
+                self.form_data = form_data # Добавляем form_data
             reason = discord.ui.TextInput(label="Причина", placeholder="Введите причину (необязательно)", required=False)
 
             async def on_submit(self, interaction: discord.Interaction):
@@ -33,4 +34,4 @@ class AcceptFormButton(discord.ui.Button):
                 await interaction.response.edit_message(embed=embed, view=None)
                 self.db_manager.discord_messages.delete_one({"message_id": interaction.message.id})
 
-        await interaction.response.send_modal(ReasonModal(self.db_manager))
+        await interaction.response.send_modal(ReasonModal(self.db_manager, self.form_data)) # Передаем form_data
