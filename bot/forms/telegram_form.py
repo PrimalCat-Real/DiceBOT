@@ -8,7 +8,7 @@ import discord
 from bot.forms.pedding_from_embed import PenddingFormEmbedManager, TelegramFormStatusEmbedManager
 from database.database import DatabaseManager
 from config import FORM_FIELDS, FORM_STATUSES
-from bot.discord_bot import discord_client
+from main import discord_bot_instance
 
 class TelegramForm:
     def __init__(self, bot, db_manager: DatabaseManager):
@@ -113,7 +113,7 @@ class TelegramForm:
         decision_channel_id = self.db_manager.get_decision_channel_id(guild_id)
 
         if decision_channel_id:
-            decision_channel = discord_client.get_channel(decision_channel_id)
+            decision_channel = discord_bot_instance.get_channel(decision_channel_id)
             if decision_channel:
                 embed = discord.Embed(title="Анкета (Telegram)", color=0x2AABEE)  # Синий цвет Telegram
                 embed.set_author(name=form_data['telegram_name'], icon_url="https://static.vecteezy.com/system/resources/previews/023/986/562/non_2x/telegram-logo-telegram-logo-transparent-telegram-icon-transparent-free-free-png.png")

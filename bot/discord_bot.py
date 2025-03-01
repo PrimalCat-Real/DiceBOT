@@ -99,3 +99,4 @@ class DiscordBot(commands.Bot):
             self.logger.warning("Event loop not running.")
         except Exception as e:
             self.logger.exception(f"Error closing bot: {e}")
+

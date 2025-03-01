@@ -25,11 +25,12 @@ logger = logging_config.setup_logging()
 database_name = 'dice_bot_db'
 db_manager = DatabaseManager(connection_string, database_name)
 
-
+intents = discord.Intents.default()
+intents.message_content = True
+discord_bot_instance = DiscordBot(token=DISCORD_TOKEN, intents=intents, logger=logger, database_manager=db_manager)
 async def run_discord_bot():
-    intents = discord.Intents.default()
-    intents.message_content = True
-    discord_bot_instance = DiscordBot(token=DISCORD_TOKEN, intents=intents, logger=logger, database_manager=db_manager)
+    
+     
     await discord_bot_instance.run_bot()
 
 async def run_telegram_bot():
