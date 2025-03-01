@@ -1,10 +1,12 @@
 import asyncio
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, types, html
 from aiogram.filters import Command
 
 from bot.forms.telegram_form import FormState, TelegramForm
 from database.database import DatabaseManager
 from aiogram.fsm.context import FSMContext
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 
 class TelegramBot:
     _instance = None
@@ -17,7 +19,7 @@ class TelegramBot:
         self.token = token
         self.logger = logger
         self.database_manager = database_manager
-        self.bot = Bot(token=self.token)
+        self.bot = Bot(token=self.token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
         self.discord_client = discord_client 
         self.dp = Dispatcher()
         self.form = TelegramForm(self.bot, self.database_manager)
