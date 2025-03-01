@@ -139,7 +139,7 @@ class TelegramForm:
                 return
 
             embed = discord.Embed(title="Анкета (Telegram)", color=0x2AABEE)
-            embed.set_author(name=form_data['telegram_name'], icon_url="https://static.vecteezy.com/system/resources/previews/023/986/562/non_2x/telegram-logo-telegram-logo-transparent-telegram-icon-transparent-free-free-png.png")
+            embed.set_author(name=form_data['telegram_name'], icon_url="https://cdn.pixabay.com/photo/2021/12/27/10/50/telegram-6896827_1280.png")
 
             embed.add_field(name="Ник Minecraft", value=form_data['mc_username'], inline=False)
             embed.add_field(name="Возраст", value=form_data['age'], inline=False)

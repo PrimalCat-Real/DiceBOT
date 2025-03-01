@@ -40,25 +40,27 @@ class AcceptFormButton(discord.ui.Button):
                 if await add_to_whitelist(self.form_data["mc_username"]):
                     logging.info(f"{self.form_data['mc_username']} added to whitelist.")
 
-                discord_id = int(self.form_data["discord_user_id"])
-                user = interaction.guild.get_member(discord_id)
-                if user:
-                    role = interaction.guild.get_role(PLAYER_ROLE_ID)
-                    if role and role not in user.roles:
-                        try:
-                            await user.add_roles(role)
-                            logging.info(f"Role {role.name} added to {user.name}.")
-                        except discord.Forbidden:
-                            logging.error(f"Bot does not have permission to add role {role.name}.")
-                        except discord.HTTPException as e:
-                            logging.error(f"Failed to add role {role.name} to {user.name}: {e}")
-                else:
-                    logging.warning(f"User with ID {discord_id} not found in guild.")
+                user_id = self.form_data.get("discord_user_id") or self.form_data.get("telegram_user_id")
+                if user_id and self.form_data.get("discord_user_id"):
+                    user = interaction.guild.get_member(int(user_id))
+                    if user:
+                        role = interaction.guild.get_role(PLAYER_ROLE_ID)
+                        if role and role not in user.roles:
+                            try:
+                                await user.add_roles(role)
+                                logging.info(f"Role {role.name} added to {user.name}.")
+                            except discord.Forbidden:
+                                logging.error(f"Bot does not have permission to add role {role.name}.")
+                            except discord.HTTPException as e:
+                                logging.error(f"Failed to add role {role.name} to {user.name}: {e}")
+                    else:
+                        logging.warning(f"User with ID {user_id} not found in guild.")
+
 
                 await interaction.response.edit_message(embed=embed, view=None)
                 self.db_manager.discord_embeds.delete_one({"message_id": interaction.message.id})
                 from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
-                await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, discord_id, self.form_data["mc_username"])
+                # await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, user_id, self.form_data["mc_username"])
                 await self.update_user_status_change(interaction.user.id, self.form_data["mc_username"])
                 await self.send_approved_embed(interaction.client, interaction.guild.id, self.form_data)
 
@@ -87,7 +89,8 @@ class AcceptFormButton(discord.ui.Button):
                             description=form_data["rp_story"],
                             color=discord.Color.from_rgb(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
                         )
-                        embed.set_author(name=form_data["discord_name"], icon_url=form_data["discord_avatar"])
+                        embed.set_author(name=form_data.get("discord_name") or form_data.get("telegram_name"),
+                                         icon_url=form_data.get("discord_avatar") or "https://cdn.pixabay.com/photo/2021/12/27/10/50/telegram-6896827_1280.png")
                         await channel.send(embed=embed)
                     else:
                         logging.error(f"Channel with ID {channel_id} not found.")
