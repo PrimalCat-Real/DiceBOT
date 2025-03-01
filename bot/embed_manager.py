@@ -21,7 +21,7 @@ class EmbedManager:
 
     @staticmethod
     def create_view(buttons):
-        view = discord.ui.View()
+        view = discord.ui.View(timeout=None, persistent=True)
         for button in buttons:
             view.add_item(button)
         return view
@@ -48,7 +48,7 @@ class EmbedManager:
                 message = await channel.fetch_message(message_data['message_id'])
 
                 button_types = message_data.get('button_types', [])
-                view = discord.ui.View()
+                view = discord.ui.View(timeout=None, persistent=True)
 
                 for button_type_name in button_types:
                     button_class = EmbedManager.BUTTON_TYPES.get(button_type_name)
