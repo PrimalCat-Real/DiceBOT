@@ -66,13 +66,13 @@ class AcceptFormButton(discord.ui.Button):
                 if user:
                     status_change_count = user.get("status_change_count", 0) + 1
                     forms_done = user.get("forms_done", [])
-                    forms_done.append({"mc_nickname": mc_username, "approve_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')})
+                    forms_done.append({"mc_nickname": mc_username, "status": "accept", "approve_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')})
                     self.db_manager.users.update_one({"discord_id": user_id}, {"$set": {"status_change_count": status_change_count, "forms_done": forms_done}})
                 else:
                     new_user = {
                         "discord_id": user_id,
                         "status_change_count": 1,
-                        "forms_done": [{"mc_nickname": mc_username, "approve_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]
+                        "forms_done": [{"mc_nickname": mc_username, "status": "accept", "approve_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]
                     }
                     self.db_manager.users.insert_one(new_user)    
             async def send_approved_embed(self, client, guild_id, form_data):
