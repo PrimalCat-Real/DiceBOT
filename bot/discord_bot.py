@@ -77,6 +77,7 @@ class DiscordBot(commands.Bot):
         self.database_manager = database_manager
         self.discord_commands = CommandManager(self, database_manager, logger)
         self.embed_manager = EmbedManager()
+        self.client = self
 
     async def on_ready(self):
         await self.tree.sync()
