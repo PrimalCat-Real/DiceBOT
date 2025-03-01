@@ -2,6 +2,7 @@ from datetime import datetime
 import discord
 
 from bot.forms.form import Form
+from bot.forms.pedding_from_embed import PenddingFormEmbedManager
 from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
 from config import FORM_FIELDS, PLAYER_ROLE_ID, is_admin, is_moderator
 from database.database import DatabaseManager
@@ -101,25 +102,8 @@ class DiscordForm(Form):
 
                 
                 await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, user_id, mc_username)
-                await self.send_decision_embed(interaction.client, form_data)
+                await PenddingFormEmbedManager.send_decision_embed(interaction.client, form_data, user_data, self.db_manager)
                 await interaction.response.send_message("Анкета отправлена!", ephemeral=True)
 
-            async def send_decision_embed(self, client, form_data):
-                decision_channel_id = self.db_manager.get_decision_channel_id(guild_id)
 
-                if decision_channel_id:
-                    decision_channel = client.get_channel(decision_channel_id)
-                    if decision_channel:
-                        print(f"Decision channel found: {decision_channel.name}")
-                        embed = discord.Embed(title="Новая заявка на рассмотрение", description=f"Пользователь {form_data['discord_name']} ({form_data['mc_username']}) подал заявку.", color=discord.Color.blue())
-                        for key, value in form_data.items():
-                            if key not in ["discord_avatar"]:
-                                embed.add_field(name=key, value=str(value), inline=False)
-                        if form_data["discord_avatar"]:
-                            embed.set_thumbnail(url=form_data["discord_avatar"])
-                        await decision_channel.send(embed=embed)
-                    else:
-                        print(f"Decision channel with id {decision_channel_id} not found.")
-                else:
-                    print("Decision channel id not set in config.")
         await interaction.response.send_modal(FormModal(self, self.db_manager))
