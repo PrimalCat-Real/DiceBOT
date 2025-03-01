@@ -38,7 +38,7 @@ class PenddingFormEmbedManager:
                 embed.add_field(name="Статус", value=form_status.name, inline=False)  # Используем form_status.name
 
                 from bot.buttons.accept_form_button import AcceptFormButton
-                accept_button = AcceptFormButton(db_manager)
+                accept_button = AcceptFormButton(db_manager, form_data)
                 from bot.embed_manager import EmbedManager
                 view = EmbedManager.create_view([accept_button])
                 button_types = ['AcceptFormButton']
