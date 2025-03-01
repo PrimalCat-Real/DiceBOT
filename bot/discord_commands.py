@@ -22,11 +22,15 @@ class CommandManager:
         @app_commands.choices(command=[
             app_commands.Choice(name="set_guild_id", value="set_guild_id"),
             app_commands.Choice(name="send_welcome_message", value="send_welcome_message"),
+            app_commands.Choice(name="set_decision_channel", value="set_decision_channel"),
+            app_commands.Choice(name="set_approved_channel", value="set_approved_channel"),
         ])
         async def discord_command(interaction: Interaction, command: app_commands.Choice[str]):
             commands = {
                 "set_guild_id": self.set_guild_id,
                 "send_welcome_message": self.send_welcome_message,
+                "set_decision_channel": self.set_decision_channel,
+                "set_approved_channel": self.set_approved_channel,
             }
 
             if command.value in commands:
@@ -50,3 +54,15 @@ class CommandManager:
         view = EmbedManager.create_view([button])
         button_types = ['FillFormButton']
         message = await EmbedManager.send_embed_with_view(interaction.channel, embed, view, button_types, self.db_manager)
+    
+    async def set_decision_channel(self, interaction: Interaction):
+        channel_id = interaction.channel.id
+        self.db_manager.set_decision_channel_id(channel_id)
+        await interaction.response.send_message(f"ID канала для решений ({interaction.channel.name} - {channel_id}) успешно сохранён.", ephemeral=True)
+        self.logger.info(f"Decision channel ID {channel_id} has been saved.")
+
+    async def set_approved_channel(self, interaction: Interaction):
+        channel_id = interaction.channel.id
+        self.db_manager.set_approved_channel_id(channel_id)
+        await interaction.response.send_message(f"ID канала для одобрения ({interaction.channel.name} - {channel_id}) успешно сохранён.", ephemeral=True)
+        self.logger.info(f"Approved channel ID {channel_id} has been saved.")

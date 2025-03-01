@@ -91,6 +91,11 @@ class DatabaseManager:
     def get_messages_with_buttons(self):
         return list(self.discord_embeds.find())
 
+    def set_decision_channel_id(self, guild_id, channel_id: int):
+        self.configs.update_one({'guild_id': guild_id}, {"$set": {"decision_channel_id": channel_id}}, upsert=True)
+
+    def set_approved_channel_id(self, guild_id, channel_id: int):
+        self.configs.update_one({'guild_id': guild_id}, {"$set": {"approved_channel_id": channel_id}}, upsert=True)
 
 # Пример использования:
 # user_data = db_manager.get_user(12345)
