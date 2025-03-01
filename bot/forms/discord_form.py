@@ -48,11 +48,11 @@ class DiscordForm(Form):
                     return
 
 
-                user_roles = [role.id for role in interaction.user.roles]
+                # user_roles = [role.id for role in interaction.user.roles]
                 discord_role = None
-                if any(is_admin(role_id) for role_id in user_roles):
+                if is_admin(interaction):
                     discord_role = "admin"
-                elif any(is_moderator(role_id) for role_id in user_roles):
+                elif is_moderator(interaction):
                     discord_role = "moderator"
                 
                 # TODO add check if some field already exist
