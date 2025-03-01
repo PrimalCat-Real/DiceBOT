@@ -14,7 +14,7 @@ class AcceptFormButton(discord.ui.Button):
             def __init__(self, db_manager, form_data):
                 super().__init__()
                 self.db_manager = db_manager
-                self.form_data = form_data # Добавляем form_data
+                self.form_data = form_data
             reason = discord.ui.TextInput(label="Причина", placeholder="Введите причину (необязательно)", required=False)
 
             async def on_submit(self, interaction: discord.Interaction):
@@ -32,6 +32,6 @@ class AcceptFormButton(discord.ui.Button):
                 embed.color = discord.Color(FORM_STATUSES["approved"].color)
 
                 await interaction.response.edit_message(embed=embed, view=None)
-                self.db_manager.discord_messages.delete_one({"message_id": interaction.message.id})
+                self.db_manager.discord_embeds.delete_one({"message_id": interaction.message.id}) # Изменяем discord_messages на discord_embeds
 
-        await interaction.response.send_modal(ReasonModal(self.db_manager, self.form_data)) # Передаем form_data
+        await interaction.response.send_modal(ReasonModal(self.db_manager, self.form_data))
