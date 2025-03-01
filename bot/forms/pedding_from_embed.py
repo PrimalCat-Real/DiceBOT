@@ -2,8 +2,6 @@ from difflib import SequenceMatcher
 from discord import Embed
 import discord
 
-# from bot.buttons.accept_form_button import AcceptFormButton
-from bot.buttons.accept_form_button import AcceptFormButton
 from bot.embed_manager import EmbedManager
 from config import FORM_STATUSES
 
