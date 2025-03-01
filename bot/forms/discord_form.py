@@ -102,19 +102,24 @@ class DiscordForm(Form):
                 await interaction.response.send_message("Форма отправлена!", ephemeral=True)
                 await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, user_id, mc_username)
                 await self.send_decision_embed(interaction.client, form_data)
-            async def send_decision_embed(self, client, form_data):
 
+            async def send_decision_embed(self, client, form_data):
                 guild_id = client.guilds[0].id
                 config = self.db_manager.get_config(guild_id)
                 if config and "decision_channel_id" in config:
                     decision_channel_id = config["decision_channel_id"]
                     decision_channel = client.get_channel(decision_channel_id)
                     if decision_channel:
+                        print(f"Decision channel found: {decision_channel.name}") # Добавляем логирование
                         embed = discord.Embed(title="Новая заявка на рассмотрение", description=f"Пользователь {form_data['discord_name']} ({form_data['mc_username']}) подал заявку.", color=discord.Color.blue())
                         for key, value in form_data.items():
                             if key not in ["discord_avatar"]:
                                 embed.add_field(name=key, value=str(value), inline=False)
                         if form_data["discord_avatar"]:
                             embed.set_thumbnail(url=form_data["discord_avatar"])
-                        await decision_channel.send(embed=embed)  
+                        await decision_channel.send(embed=embed)
+                    else:
+                        print(f"Decision channel with id {decision_channel_id} not found.") # Добавляем логирование
+                else:
+                    print("Decision channel id not set in config.")
         await interaction.response.send_modal(FormModal(self, self.db_manager))
