@@ -39,7 +39,8 @@ class AcceptFormButton(discord.ui.Button):
                 if await add_to_whitelist(self.form_data["mc_username"]):
                     logging.info(f"{self.form_data['mc_username']} added to whitelist.")
 
-                user = interaction.guild.get_member(self.user_data["discord_id"])
+                discord_id = self.user_data["discord_user_id"]
+                user = interaction.guild.get_member(discord_id)
                 if user:
                     role = interaction.guild.get_role(PLAYER_ROLE_ID)
                     if role and role not in user.roles:
@@ -54,7 +55,7 @@ class AcceptFormButton(discord.ui.Button):
                     logging.warning(f"User with ID {self.user_data['discord_id']} not found in guild.")
                 await interaction.response.edit_message(embed=embed, view=None)
                 self.db_manager.discord_embeds.delete_one({"message_id": interaction.message.id})
-                # from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
-                # await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, self.user_data["discord_id"], self.form_data["mc_username"])
+                from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
+                await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, self.user_data["discord_id"], self.form_data["mc_username"])
                 
         await interaction.response.send_modal(ReasonModal(self.db_manager, self.form_data))
