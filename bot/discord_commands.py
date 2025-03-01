@@ -1,5 +1,5 @@
 import discord
-from discord import ButtonStyle, app_commands, Interaction
+from discord import Button, ButtonStyle, app_commands, Interaction
 import logging
 
 from bot.buttons.fill_form_button import FillFormButton
@@ -52,8 +52,9 @@ class CommandManager:
         embed = messages["welcome_embed"]
         button = FillFormButton(self.db_manager)
 
-        view = EmbedManager.create_view([button])
-        button_types = ['FillFormButton']
+        discord_link_button = Button(style=ButtonStyle.link, url="https://drive.google.com/file/d/15G-zZevRi3co09n1YERWwd0wvA1vRYOx/view?usp=sharing", label="Скачать Лаунчер")
+        view = EmbedManager.create_view([button, discord_link_button])
+        button_types = ['FillFormButton', 'discord.ui.Button']
         message = await EmbedManager.send_embed_with_view(interaction.channel, embed, view, button_types, self.db_manager)
     
     async def set_decision_channel(self, interaction: Interaction):
