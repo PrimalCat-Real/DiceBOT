@@ -53,15 +53,20 @@ class TelegramForm:
         else:
             self.db_manager.users.insert_one(user_data)
 
+        # Проверка дубликата анкеты
         if self.db_manager.check_form_duplicate(mc_username):
             await message.answer("Анкета с таким ником уже существует.")
             return
-    
-        self.db_manager.forms.update_one({"mc_username": mc_username}, {"$set": form_data})
 
-        # self.db_manager.forms.insert_one(form_data)
+        # Сохранение или обновление данных в forms
+        existing_form = self.db_manager.forms.find_one({"mc_username": mc_username})
+        if existing_form:
+            self.db_manager.forms.update_one({"mc_username": mc_username}, {"$set": form_data})
+        else:
+            self.db_manager.forms.insert_one(form_data)
+
         await TelegramFormStatusEmbedManager.send_status_message(self.bot, self.db_manager, user_id, mc_username)
-        await self.send_form_to_discord(form_data) 
+        await self.send_form_to_discord(form_data)
 
         await message.answer("Анкета отправлена!")
 
@@ -81,8 +86,8 @@ class TelegramForm:
 
         # Проверка уникальности Telegram ID
         telegram_id = self.db_manager.forms.find_one({
-            "telegram_user_id": message.from_user.id,
-            "status": {"$in": ["pending", "approved"]}
+        "telegram_user_id": message.from_user.id,
+        "status": {"$in": ["pending", "approved"]}
         })
         if telegram_id:
             await message.answer("Вы уже подали анкету.")
