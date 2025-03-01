@@ -41,8 +41,8 @@ class PenddingFormEmbedManager:
                 accept_button = AcceptFormButton(db_manager, form_data, user_data)
                 from bot.embed_manager import EmbedManager
                 view = EmbedManager.create_view([accept_button])
-                # button_types = ['FillFormButton']
-                # await EmbedManager.send_embed_with_view(decision_channel, embed, view, button_types, db_manager)
+                button_types = ['AcceptFormButton']
+                await EmbedManager.send_embed_with_view(decision_channel, embed, view, button_types, db_manager)
                 # await decision_channel.send(content=f"<@&{PenddingFormEmbedManager.MODERATOR_ROLE_ID}>", embed=embed)
 
     @staticmethod
