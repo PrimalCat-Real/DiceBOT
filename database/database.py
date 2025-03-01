@@ -96,7 +96,17 @@ class DatabaseManager:
 
     def set_approved_channel_id(self, guild_id, channel_id: int):
         self.configs.update_one({'guild_id': guild_id}, {"$set": {"approved_channel_id": channel_id}}, upsert=True)
+    def get_decision_channel_id(self, guild_id: int) -> int:
+        config = self.configs.find_one({'guild_id': guild_id})
+        if config and "decision_channel_id" in config:
+            return config["decision_channel_id"]
+        return None
 
+    def get_approved_channel_id(self, guild_id: int) -> int:
+        config = self.configs.find_one({'guild_id': guild_id})
+        if config and "approved_channel_id" in config:
+            return config["approved_channel_id"]
+        return None
 # Пример использования:
 # user_data = db_manager.get_user(12345)
 # db_manager.update_user(12345, {'username': 'NewUsername'})
