@@ -80,16 +80,16 @@ class TelegramForm:
         """Начинает процесс заполнения формы."""
         self.data = {}
         self.current_field_index = 0
+        mc_username = message.text
 
         # Проверка уникальности ника
-        mc_username = self.db_manager.forms.find_one({
-            "mc_username": message.text,
+        existing_form = self.db_manager.forms.find_one({
+            "mc_username": mc_username,
             "status": {"$in": ["pending", "approved"]}
         })
-        if mc_username:
+        if existing_form:
             await message.answer("Ник уже используется в активной анкете.")
             return
-
         # Проверка уникальности Telegram ID
         telegram_id = self.db_manager.forms.find_one({
         "telegram_user_id": message.from_user.id,
