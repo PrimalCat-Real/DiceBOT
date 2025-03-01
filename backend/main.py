@@ -3,65 +3,42 @@ from pydantic import BaseModel
 import subprocess
 import os
 from dotenv import load_dotenv
-
-from database.database import DatabaseManager
-from logs import logging_config
+from pymongo import MongoClient  # Импортируем MongoClient для работы с MongoDB
 
 load_dotenv()
 
 app = FastAPI()
 
-connection_string = os.getenv("MONGODB")
-
-logger = logging_config.setup_logging()
-
-database_name = 'dice_bot_db'
-db_manager = DatabaseManager(connection_string, database_name)
+# Настройка подключения к MongoDB
+MONGODB_URI = os.getenv("MONGODB")
+DATABASE_NAME = "dice_bot_db"  # Замените на имя вашей базы данных
+client = MongoClient(MONGODB_URI)
+db = client[DATABASE_NAME]
+users_collection = db["users"]  # Предполагается, что коллекция называется "users"
 
 class ConnectionRequest(BaseModel):
     username: str
     ip: str
 
-# def remove_existing_ip(ip_address: str, sudo_password: str):
-#     """Удаляет существующее правило ufw для заданного IP-адреса."""
-#     try:
-#         process_delete = subprocess.Popen(
-#             ["sudo", "-S", "ufw", "delete", "allow", "from", ip_address, "to", "any", "port", "25565"],
-#             stdin=subprocess.PIPE,
-#             stdout=subprocess.PIPE,
-#             stderr=subprocess.PIPE,
-#             text=True
-#         )
-#         stdout, stderr = process_delete.communicate(input=sudo_password + "\n")
-#         if process_delete.returncode != 0:
-#             raise Exception(f"Failed to delete existing rule: {stderr}")
-#     except Exception as e:
-#         raise Exception(f"Error removing existing IP: {str(e)}")
-
 @app.post("/v1/allowConnectByApi")
 async def allow_connection(request: ConnectionRequest):
     ip_address = request.ip
     mc_username = request.username
-    sudo_password = os.getenv("SUDO_PASSWORD")
-
-    if not sudo_password:
-        raise HTTPException(status_code=500, detail="Sudo password not set in .env file.")
+    sudo_password = "SimplePass123"
 
     try:
-        logger.info(f"Received connection request for {mc_username} from {ip_address}")
-        logger.info(f"Searching for user {mc_username} in database...")
-        user = db_manager.users.find_one({"mc_username": mc_username})
-        logger.info(f"Search result: {user}")
-
+        # Проверяем, существует ли пользователь с таким ником
+        user = users_collection.find_one({"mc_username": mc_username})
         if not user:
-            logger.error(f"User {mc_username} not found.")
             raise HTTPException(status_code=404, detail="User not found.")
 
-        logger.info(f"Updating last_ip to {ip_address} for user {mc_username}.")
-        update_result = db_manager.users.update_one({"_id": user["_id"]}, {"$set": {"last_ip": ip_address}})
-        logger.info(f"Update result: {update_result.modified_count} documents modified.")
+        # Добавляем IP-адрес в базу данных
+        users_collection.update_one(
+            {"mc_username": mc_username},
+            {"$set": {"last_ip": ip_address}}
+        )
 
-        logger.info(f"Allowing connection from {ip_address} to port 25565.")
+        # Разрешаем соединение через ufw
         process_allow = subprocess.Popen(
             ["sudo", "-S", "ufw", "allow", "from", ip_address, "to", "any", "port", "25565"],
             stdin=subprocess.PIPE,
@@ -71,17 +48,14 @@ async def allow_connection(request: ConnectionRequest):
         )
         stdout, stderr = process_allow.communicate(input=sudo_password + "\n")
         if process_allow.returncode != 0:
-            logger.error(f"Failed to allow connection for {ip_address}: {stderr}")
-            raise HTTPException(status_code=500, detail=f"Failed to allow connection: {stderr}")
+            return {"error": f"Failed to allow connection: {stderr}"}
 
-        logger.info(f"Connection allowed from {ip_address} to port 25565 for user {mc_username}.")
         return {"message": f"Connection allowed from {ip_address} to port 25565"}
 
     except HTTPException as http_exc:
         raise http_exc
     except Exception as e:
-        logger.error(f"An unexpected error occurred for user {mc_username}: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+        return {"error": f"An unexpected error occurred: {str(e)}"}
 
 if __name__ == "__main__":
     import uvicorn
