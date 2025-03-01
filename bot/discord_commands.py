@@ -54,6 +54,7 @@ class CommandManager:
 
     async def send_welcome_message(self, interaction: Interaction):
         embed = messages["welcome_embed"]
+        embed.set_image(url="https://media.discordapp.net/attachments/1204083354698252329/1297945998269747223/Group_10.png")
         button = FillFormButton(self.db_manager)
 
         discord_link_button = ui.Button(style=ButtonStyle.link, url="https://drive.google.com/file/d/15G-zZevRi3co09n1YERWwd0wvA1vRYOx/view?usp=sharing", label="Скачать Лаунчер")
