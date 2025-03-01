@@ -1,7 +1,7 @@
 import logging
 import discord
 from datetime import datetime
-from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
+
 from config import FORM_STATUSES, PLAYER_ROLE_ID
 from database.database import DatabaseManager
 from utils import add_to_whitelist
@@ -54,6 +54,7 @@ class AcceptFormButton(discord.ui.Button):
                     logging.warning(f"User with ID {self.user_data['discord_id']} not found in guild.")
                 await interaction.response.edit_message(embed=embed, view=None)
                 self.db_manager.discord_embeds.delete_one({"message_id": interaction.message.id})
+                from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
                 await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, self.user_data["discord_id"], self.form_data["mc_username"])
                 
         await interaction.response.send_modal(ReasonModal(self.db_manager, self.form_data))
