@@ -52,6 +52,13 @@ class EmbedManager:
                     if button_class:
                         if button_type_name == 'discord.ui.Button':
                             button = button_class(style=discord.ButtonStyle.primary, label="Button")
+                        elif button_type_name == 'AcceptFormButton':
+                            form_data = db_manager.get_form_data_by_message_id(message.id)
+                            if form_data:
+                                button = button_class(db_manager, form_data)
+                            else:
+                                logger.error(f"Form or user data not found for message {message.id}")
+                                continue
                         else:
                             button = button_class(db_manager)
                         view.add_item(button)

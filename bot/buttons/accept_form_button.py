@@ -3,11 +3,10 @@ from datetime import datetime
 from config import FORM_STATUSES
 
 class AcceptFormButton(discord.ui.Button):
-    def __init__(self, db_manager, form_data, user_data, *args, **kwargs):
+    def __init__(self, db_manager, form_data, *args, **kwargs):
         super().__init__(style=discord.ButtonStyle.success, label="Одобрить", *args, **kwargs)
         self.db_manager = db_manager
         self.form_data = form_data
-        self.user_data = user_data
 
     async def callback(self, interaction: discord.Interaction):
         self.db_manager.forms.update_one({"mc_username": self.form_data["mc_username"]}, {"$set": {"status": "approved", "approved_by": interaction.user.id, "approved_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}})

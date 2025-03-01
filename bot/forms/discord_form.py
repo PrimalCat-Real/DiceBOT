@@ -102,7 +102,8 @@ class DiscordForm(Form):
 
                 
                 await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, user_id, mc_username)
-                await PenddingFormEmbedManager.send_decision_embed(interaction.client, form_data, user_data, self.db_manager)
+                message_id = await PenddingFormEmbedManager.send_decision_embed(interaction.client, form_data, user_data, self.db_manager)
+                self.db_manager.forms.update_one({"mc_username": mc_username}, {"$set": {"message_id": message_id}}) 
                 await interaction.response.send_message("Анкета отправлена!", ephemeral=True)
 
 

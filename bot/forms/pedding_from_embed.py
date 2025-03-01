@@ -38,11 +38,13 @@ class PenddingFormEmbedManager:
                 embed.add_field(name="Статус", value=form_status.name, inline=False)  # Используем form_status.name
 
                 from bot.buttons.accept_form_button import AcceptFormButton
-                accept_button = AcceptFormButton(db_manager, form_data, user_data)
+                accept_button = AcceptFormButton(db_manager)
                 from bot.embed_manager import EmbedManager
                 view = EmbedManager.create_view([accept_button])
                 button_types = ['AcceptFormButton']
-                await EmbedManager.send_embed_with_view(decision_channel, embed, view, button_types, db_manager)
+                message = await EmbedManager.send_embed_with_view(decision_channel, embed, view, button_types, db_manager)
+                return message.id
+                
                 # await decision_channel.send(content=f"<@&{PenddingFormEmbedManager.MODERATOR_ROLE_ID}>", embed=embed)
 
     @staticmethod
