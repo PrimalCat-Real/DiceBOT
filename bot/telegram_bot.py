@@ -33,7 +33,17 @@ class TelegramBot:
 
     def register_handlers(self):
         self.dp.message.register(self.start, Command(commands=["start"]))
+        self.dp.message.register(self.start, Command(commands=["fill_form"]))
+        self.dp.message.register(self.send_info, Command(commands=["info"]))
         self.dp.message.register(self.process_answer, FormState.waiting_for_answer)
+
+    async def send_info(self, message: types.Message):
+        info_message = "Ссылки:\n" \
+                       "[Лаунчер](https://drive.google.com/file/d/15G-zZevRi3co09n1YERWwd0wvA1vRYOx/view?usp=sharing)\n" \
+                       "[Сборка Модов](https://drive.google.com/file/d/1kFx-rqNIDHSH3iUqgszaCq5n4xXSilfj/view?usp=sharing)\n" \
+                       "[Discord канал](https://discord.gg/JEnpk5jAGq)\n" \
+                       "[Обход блокировки](https://github.com/Filinsl/Discord-unlock)"
+        await message.answer(info_message, parse_mode="Markdown")
 
     async def run_bot(self):
         self.register_handlers()

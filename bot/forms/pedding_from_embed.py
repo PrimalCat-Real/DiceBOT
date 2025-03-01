@@ -97,7 +97,9 @@ class TelegramFormStatusEmbedManager:
         if status.key == "pending":
             return f"Статус вашей анкеты: {status.name}\nВаша анкета находится на рассмотрении."
         elif status.key == "approved":
-            return f"Статус вашей анкеты: {status.name}\nДобро пожаловать на сервер! Приятной игры!\n[Лаунчер](https://drive.google.com/file/d/15G-zZevRi3co09n1YERWwd0wvA1vRYOx/view?usp=sharing)\n[Сборка Модов](https://drive.google.com/file/d/1kFx-rqNIDHSH3iUqgszaCq5n4xXSilfj/view?usp=sharing)"
+            return f"Статус вашей анкеты: {status.name}\nДобро пожаловать на сервер! Приятной игры!\n" \
+                f"[Лаунчер](https://drive.google.com/file/d/15G-zZevRi3co09n1YERWwd0wvA1vRYOx/view?usp=sharing)\n" \
+                f"[Сборка Модов](https://drive.google.com/file/d/1kFx-rqNIDHSH3iUqgszaCq5n4xXSilfj/view?usp=sharing)"
         elif status.key == "rejected":
             reason = form.get("reason", "Причина не указана")
             return f"Статус вашей анкеты: {status.name}\nВаша анкета была отклонена.\nПричина: {reason}"
