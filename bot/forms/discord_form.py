@@ -80,7 +80,7 @@ class DiscordForm(Form):
                     "rp_story": self.form.data.get("rp_character_story", None),
                     "source_info": self.form.data.get("how_did_you_find_us", None),
                     "submission_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                    "status": "В ожидании"
+                    "status": "pending"
                 }
 
                 existing_user = self.db_manager.users.find_one({"mc_username": mc_username})
@@ -99,9 +99,10 @@ class DiscordForm(Form):
                 self.db_manager.forms.insert_one(form_data)
 
 
-                await interaction.response.send_message("Форма отправлена!", ephemeral=True)
+                
                 await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, user_id, mc_username)
                 await self.send_decision_embed(interaction.client, form_data)
+                await interaction.response.send_message("Форма отправлена!", ephemeral=True)
 
             async def send_decision_embed(self, client, form_data):
                 guild_id = client.guilds[0].id
