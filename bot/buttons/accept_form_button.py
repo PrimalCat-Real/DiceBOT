@@ -57,6 +57,6 @@ class AcceptFormButton(discord.ui.Button):
                 await interaction.response.edit_message(embed=embed, view=None)
                 self.db_manager.discord_embeds.delete_one({"message_id": interaction.message.id})
                 from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
-                await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, self.user_data["discord_id"], self.form_data["mc_username"])
+                await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, discord_id, self.form_data["mc_username"])
                 
         await interaction.response.send_modal(ReasonModal(self.db_manager, self.form_data))
