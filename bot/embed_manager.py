@@ -2,7 +2,7 @@ import discord
 import json
 from bot.buttons.accept_form_button import AcceptFormButton
 from bot.buttons.fill_form_button import FillFormButton
-from database.database import DatabaseManager  # Импортируйте ваши кастомные кнопки
+from database.database import DatabaseManager
 
 class EmbedManager:
 
