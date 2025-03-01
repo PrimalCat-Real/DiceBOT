@@ -67,6 +67,8 @@ import logging
 
 #         await asyncio.sleep(60)  # Проверяем каждые 10 минут
 
+discord_bot = None
+
 class DiscordBot(commands.Bot):
     def __init__(self, token, command_prefix="!", intents=discord.Intents.default(), logger=logging, database_manager: DatabaseManager = None):
         super().__init__(command_prefix=command_prefix, intents=intents)
@@ -77,6 +79,8 @@ class DiscordBot(commands.Bot):
         self.embed_manager = EmbedManager()
 
     async def on_ready(self):
+        global discord_bot
+        discord_bot = self 
         await self.tree.sync()
         self.logger.info("Discord bot is ready!")
         self.logger.info('------')
