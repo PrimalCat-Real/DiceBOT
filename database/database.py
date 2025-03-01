@@ -107,6 +107,10 @@ class DatabaseManager:
         if config and "approved_channel_id" in config:
             return config["approved_channel_id"]
         return None
+    
+    def delete_form(self, mc_username):
+        result = self.forms.delete_one({"mc_username": mc_username})
+        return result
 # Пример использования:
 # user_data = db_manager.get_user(12345)
 # db_manager.update_user(12345, {'username': 'NewUsername'})

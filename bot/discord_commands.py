@@ -24,6 +24,7 @@ class CommandManager:
             app_commands.Choice(name="send_welcome_message", value="send_welcome_message"),
             app_commands.Choice(name="set_decision_channel", value="set_decision_channel"),
             app_commands.Choice(name="set_approved_channel", value="set_approved_channel"),
+            app_commands.Choice(name="delete_form", value="delete_form"),
         ])
         async def discord_command(interaction: Interaction, command: app_commands.Choice[str]):
             commands = {
@@ -68,3 +69,17 @@ class CommandManager:
         self.db_manager.set_approved_channel_id(guild_id, channel_id)
         await interaction.response.send_message(f"ID канала для одобрения ({interaction.channel.name} - {channel_id}) успешно сохранён.", ephemeral=True)
         self.logger.info(f"Approved channel ID {channel_id} has been saved.")
+
+    async def delete_form(self, interaction: Interaction):
+        class DeleteFormModal(discord.ui.Modal, title="Удаление анкеты"):
+            mc_username = discord.ui.TextInput(label="Ник Minecraft", placeholder="Введите ник Minecraft", required=True)
+
+            async def on_submit(self, interaction: Interaction):
+                mc_username = self.mc_username.value
+                result = self.db_manager.delete_form(mc_username)
+                if result.deleted_count > 0:
+                    await interaction.response.send_message(f"Анкета пользователя {mc_username} успешно удалена.", ephemeral=True)
+                else:
+                    await interaction.response.send_message(f"Анкета пользователя {mc_username} не найдена.", ephemeral=True)
+
+        await interaction.response.send_modal(DeleteFormModal(self))
