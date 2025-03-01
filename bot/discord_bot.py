@@ -82,6 +82,7 @@ class DiscordBot(commands.Bot):
         self.discord_commands = CommandManager(self, database_manager, logger)
 
     def set_tg_bot(self, tg_bot):
+        print("test tg bot", tg_bot)
         self.tg_bot = tg_bot
 
     async def on_ready(self):

@@ -45,6 +45,7 @@ async def main():
     
     # Передаем инстанс Discord бота в Telegram бота
     telegram_bot = TelegramBot(token=TELEGRAM_TOKEN, logger=logger, database_manager=db_manager, discord_client=discord_bot_instance.client)
+    discord_bot_instance.set_tg_bot(telegram_bot)
     discord_task = asyncio.create_task(discord_bot_instance.run_bot())
     telegram_task = asyncio.create_task(telegram_bot.run_bot())
 
