@@ -5,6 +5,7 @@ from datetime import datetime
 
 import discord
 
+from discord_bot import discord_bot
 from bot.forms.pedding_from_embed import PenddingFormEmbedManager, TelegramFormStatusEmbedManager
 from database.database import DatabaseManager
 from config import FORM_FIELDS, FORM_STATUSES
@@ -60,7 +61,7 @@ class TelegramForm:
 
         # self.db_manager.forms.insert_one(form_data)
         await TelegramFormStatusEmbedManager.send_status_message(self.bot, self.db_manager, user_id, mc_username)
-        await self.send_form_to_discord(self.bot.get("discord_client"), form_data)
+        await self.send_form_to_discord(discord_bot, form_data)
 
         await message.answer("Анкета отправлена!")
 
