@@ -5,7 +5,6 @@ from datetime import datetime
 
 from bot.forms.pedding_from_embed import TelegramFormStatusEmbedManager
 from database.database import DatabaseManager
-from bot.embed_manager import PenddingFormEmbedManager
 from config import FORM_FIELDS
 
 class TelegramForm:
