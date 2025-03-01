@@ -1,6 +1,8 @@
 from difflib import SequenceMatcher
 from discord import Embed
 
+from config import FORM_STATUSES
+
 
 class PenddingFormEmbedManager:
     MODERATOR_ROLE_ID = 1234567890
@@ -31,6 +33,8 @@ class PenddingFormEmbedManager:
                 # Проверка схожести анкет
                 similarity_message = PenddingFormEmbedManager.check_rp_story_similarity(form_data, db_manager)
                 embed.add_field(name="Схожесть анкет", value=similarity_message, inline=False)
+                form_status = FORM_STATUSES[form_data["status"]]
+                embed.add_field(name="Статус", value=form_status.name, inline=False)  # Используем form_status.name
 
                 await decision_channel.send(content=f"<@&{PenddingFormEmbedManager.MODERATOR_ROLE_ID}>", embed=embed)
 
