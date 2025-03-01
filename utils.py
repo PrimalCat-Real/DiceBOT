@@ -7,7 +7,8 @@ from main import RCON_HOST, RCON_PASSWORD, RCON_PORT
 
 async def add_to_whitelist(mc_username: str) -> bool:
     try:
-        with MCRcon(RCON_HOST, RCON_PASSWORD, port=RCON_PORT) as mcr:
+        rcon_port = int(RCON_PORT)
+        with MCRcon(RCON_HOST, RCON_PASSWORD, port=rcon_port) as mcr:
             command = f'whitelist add {mc_username}'
             mcr.command(command)
         logging.info(f"{mc_username} added to whitelist.")
