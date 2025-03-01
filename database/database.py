@@ -111,7 +111,8 @@ class DatabaseManager:
     def delete_form(self, mc_username):
         result = self.forms.delete_one({"mc_username": mc_username})
         return result
-    
+    def delete_form_by_message_id(self, message_id):
+        self.forms.delete_one({"message_id": message_id})
     def get_form_data_by_message_id(self, message_id):
         return self.forms.find_one({'message_id': message_id})
 # Пример использования:
