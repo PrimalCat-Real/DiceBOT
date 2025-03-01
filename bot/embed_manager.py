@@ -1,6 +1,7 @@
 import discord
 import json
 from bot.buttons.accept_form_button import AcceptFormButton
+from bot.buttons.decline_form_button import DeclineFormButton
 from bot.buttons.fill_form_button import FillFormButton
 from database.database import DatabaseManager
 
@@ -10,6 +11,7 @@ class EmbedManager:
         'discord.ui.Button': discord.ui.Button,
         'FillFormButton': FillFormButton,
         'AcceptFormButton': AcceptFormButton,
+        'DeclineFormButton': DeclineFormButton,
         'discord.ui.Button.link': discord.ui.Button
     }
 
@@ -53,7 +55,7 @@ class EmbedManager:
                     if button_class:
                         if button_type_name == 'discord.ui.Button':
                             button = button_class(style=discord.ButtonStyle.primary, label="Button")
-                        elif button_type_name == 'AcceptFormButton':
+                        elif button_type_name == 'AcceptFormButton' or button_type_name == 'DeclineFormButton':
                             form_data = db_manager.get_form_data_by_message_id(message.id)
                             if form_data:
                                 button = button_class(db_manager, form_data)
