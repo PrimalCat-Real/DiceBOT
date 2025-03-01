@@ -4,6 +4,7 @@ import os
 import signal
 from dotenv import load_dotenv
 
+from bot import discord_bot
 from bot.discord_bot import DiscordBot
 from bot.telegram_bot import TelegramBot
 from database.database import DatabaseManager
@@ -24,7 +25,6 @@ logger = logging_config.setup_logging()
 database_name = 'dice_bot_db'
 db_manager = DatabaseManager(connection_string, database_name)
 
-discord_bot = None
 
 async def run_discord_bot():
     intents = discord.Intents.default()
