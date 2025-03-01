@@ -36,9 +36,8 @@ db_manager = DatabaseManager(connection_string, database_name)
 # async def run_telegram_bot():
 #     telegram_bot = TelegramBot(token=TELEGRAM_TOKEN, logger=logger, database_manager=db_manager)
 #     await telegram_bot.run_bot()
-telegram_bot = None
+
 async def main():
-    global telegram_bot 
     intents = discord.Intents.default()
     intents.message_content = True
     discord_bot_instance = DiscordBot(token=DISCORD_TOKEN, intents=intents, logger=logger, database_manager=db_manager)

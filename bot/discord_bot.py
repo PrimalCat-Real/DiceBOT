@@ -70,7 +70,7 @@ import logging
 
 
 class DiscordBot(commands.Bot):
-    def __init__(self, token, command_prefix="!", intents=discord.Intents.default(), logger=logging, database_manager: DatabaseManager = None):
+    def __init__(self, token, command_prefix="!", intents=discord.Intents.default(), logger=logging, database_manager: DatabaseManager = None, tg_bot = None):
         super().__init__(command_prefix=command_prefix, intents=intents)
         self.token = token
         self.logger = logger
@@ -78,7 +78,7 @@ class DiscordBot(commands.Bot):
         
         self.embed_manager = EmbedManager()
         self.client = self
-        self.tg_bot = None
+        self.tg_bot = tg_bot
         self.discord_commands = CommandManager(self, database_manager, logger)
 
     def set_tg_bot(self, tg_bot):
