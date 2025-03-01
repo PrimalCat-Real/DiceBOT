@@ -33,7 +33,7 @@ async def run_discord_bot():
     await discord_bot_instance.run_bot()
 
 async def run_telegram_bot():
-    telegram_bot = TelegramBot(token=TELEGRAM_TOKEN, logger=logger, database_manager=db_manager, discord_client=discord_bot)
+    telegram_bot = TelegramBot(token=TELEGRAM_TOKEN, logger=logger, database_manager=db_manager)
     await telegram_bot.run_bot()
 
 async def main():
