@@ -1,8 +1,8 @@
 import asyncio
-from datetime import datetime, timedelta
+# from datetime import datetime, timedelta
 import discord
 from discord.ext import commands
-import requests
+# import requests
 
 from bot.discord_commands import CommandManager
 from bot.embed_manager import EmbedManager
