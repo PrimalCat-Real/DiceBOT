@@ -1,10 +1,7 @@
 from difflib import SequenceMatcher
 from discord import Embed
-import discord
-
 # from bot.buttons.accept_form_button import AcceptFormButton
-from bot.buttons.fill_form_button import FillFormButton
-from bot.embed_manager import EmbedManager
+from bot.buttons.accept_form_button import AcceptFormButton
 from config import FORM_STATUSES
 
 
@@ -39,12 +36,12 @@ class PenddingFormEmbedManager:
                 embed.add_field(name="Схожесть анкет", value=similarity_message, inline=False)
                 form_status = FORM_STATUSES[form_data["status"]]
                 embed.add_field(name="Статус", value=form_status.name, inline=False)  # Используем form_status.name
-                # accept_button = AcceptFormButton(db_manager, form_data, user_data)
-                button = FillFormButton(db_manager)
+                accept_button = AcceptFormButton(db_manager, form_data, user_data)
+                # button = FillFormButton(db_manager)
 
-                view = EmbedManager.create_view([button])
-                button_types = ['FillFormButton']
-                await EmbedManager.send_embed_with_view(decision_channel, embed, view, button_types, db_manager)
+                # view = EmbedManager.create_view([])
+                # button_types = ['FillFormButton']
+                # await EmbedManager.send_embed_with_view(decision_channel, embed, view, button_types, db_manager)
                 # await decision_channel.send(content=f"<@&{PenddingFormEmbedManager.MODERATOR_ROLE_ID}>", embed=embed)
 
     @staticmethod

@@ -1,7 +1,6 @@
 import discord
 from datetime import datetime
 from config import FORM_STATUSES
-from bot.embed_manager import EmbedManager
 
 class AcceptFormButton(discord.ui.Button):
     def __init__(self, db_manager, form_data, user_data, *args, **kwargs):
