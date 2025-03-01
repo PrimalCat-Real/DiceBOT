@@ -106,5 +106,5 @@ class DiscordForm(Form):
                 self.db_manager.forms.update_one({"mc_username": mc_username}, {"$set": {"message_id": message_id}}) 
                 await interaction.response.send_message("Анкета отправлена!", ephemeral=True)
 
-
+        
         await interaction.response.send_modal(FormModal(self, self.db_manager))
