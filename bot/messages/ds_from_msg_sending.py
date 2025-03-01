@@ -38,7 +38,7 @@ class FormStatusEmbedManager:
         elif status.key == "approved":
             embed = Embed(title=f"Статус вашей анкеты: {status.name}", description="Добро пожаловать на сервер! Приятной игры!", color=status.color)
             embed.add_field(name="IP сервера", value="play.dicerp.fun", inline=False)
-            embed.add_field(name="Скачать лаунчер", value="[Скачать](https://drive.google.com/file/d/15G-zZevRi3co09n1YERWwd0wvA1vRYOx/view?usp=sharing)", inline=False)
+            embed.add_field(name="Скачать", value="[Лаунчер](https://drive.google.com/file/d/15G-zZevRi3co09n1YERWwd0wvA1vRYOx/view?usp=sharing)", inline=False)
             return embed
         elif status.key == "rejected":
             reason = form.get("reason", "Причина не указана")
