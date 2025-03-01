@@ -67,3 +67,40 @@ class PenddingFormEmbedManager:
             return "Оригинальная анкета"
         else:
             return f"Схожесть: {max_similarity:.2f}%"
+        
+
+from aiogram import Bot
+from aiogram.types import Message
+from database.database import DatabaseManager
+from config import FORM_STATUSES
+
+class TelegramFormStatusEmbedManager:
+    @staticmethod
+    async def send_status_message(bot: Bot, db_manager: DatabaseManager, user_id: int, mc_username: str):
+        form = db_manager.forms.find_one({"mc_username": mc_username, "telegram_user_id": user_id})
+        if not form:
+            return
+
+        status_key = form["status"]
+        status = FORM_STATUSES.get(status_key, FORM_STATUSES["pending"])
+        message_text = TelegramFormStatusEmbedManager.create_status_message(status, form)
+
+        try:
+            await bot.send_message(chat_id=form["telegram_chat_id"], text=message_text)
+            print(f"Статус анкеты для пользователя {user_id} отправлен: {status.name}")
+        except Exception as e:
+            print(f"Произошла ошибка при отправке статуса анкеты пользователю {user_id}: {e}")
+
+    @staticmethod
+    def create_status_message(status, form):
+        if status.key == "pending":
+            return f"Статус вашей анкеты: {status.name}\nВаша анкета находится на рассмотрении."
+        elif status.key == "approved":
+            return f"Статус вашей анкеты: {status.name}\nДобро пожаловать на сервер! Приятной игры!\n[Лаунчер](https://drive.google.com/file/d/15G-zZevRi3co09n1YERWwd0wvA1vRYOx/view?usp=sharing)\n[Сборка Модов](https://drive.google.com/file/d/1kFx-rqNIDHSH3iUqgszaCq5n4xXSilfj/view?usp=sharing)"
+        elif status.key == "rejected":
+            reason = form.get("reason", "Причина не указана")
+            return f"Статус вашей анкеты: {status.name}\nВаша анкета была отклонена.\nПричина: {reason}"
+        elif status.key == "deleted":
+            return f"Статус вашей анкеты: {status.name}\nВаша анкета была удалена."
+        else:
+            return "Статус вашей анкеты: Неизвестно\nСтатус вашей анкеты не определен."

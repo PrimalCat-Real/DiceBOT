@@ -3,7 +3,9 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from datetime import datetime
 
+from bot.forms.pedding_from_embed import TelegramFormStatusEmbedManager
 from database.database import DatabaseManager
+from bot.embed_manager import PenddingFormEmbedManager
 from config import FORM_FIELDS
 
 class TelegramForm:
@@ -37,7 +39,8 @@ class TelegramForm:
             "rp_story": self.data.get("rp_character_story", None),
             "source_info": self.data.get("how_did_you_find_us", "Не указал"),
             "submission_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            "status": "pending"
+            "status": "pending",
+            "telegram_chat_id": message.chat.id
         }
 
         existing_user = self.db_manager.users.find_one({"mc_username": mc_username})
@@ -51,14 +54,37 @@ class TelegramForm:
         if self.db_manager.check_form_duplicate(mc_username):
             await message.answer("Анкета с таким ником уже существует.")
             return
+    
+        self.db_manager.forms.update_one({"mc_username": mc_username}, {"$set": form_data})
 
-        self.db_manager.forms.insert_one(form_data)
+        # self.db_manager.forms.insert_one(form_data)
+        await TelegramFormStatusEmbedManager.send_status_message(self.bot, self.db_manager, user_id, mc_username) # Отправляем уведомление
+
         await message.answer("Анкета отправлена!")
 
     async def start_form(self, message: types.Message, state: FSMContext):
         """Начинает процесс заполнения формы."""
         self.data = {}
         self.current_field_index = 0
+
+        # Проверка уникальности ника
+        mc_username = self.db_manager.forms.find_one({
+            "mc_username": message.text,
+            "status": {"$in": ["pending", "approved"]}
+        })
+        if mc_username:
+            await message.answer("Ник уже используется в активной анкете.")
+            return
+
+        # Проверка уникальности Telegram ID
+        telegram_id = self.db_manager.forms.find_one({
+            "telegram_user_id": message.from_user.id,
+            "status": {"$in": ["pending", "approved"]}
+        })
+        if telegram_id:
+            await message.answer("Вы уже подали анкету.")
+            return
+
         await state.set_state(FormState.waiting_for_answer)
         await message.answer(self.fields[self.current_field_index].name)
 
