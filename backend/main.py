@@ -22,21 +22,21 @@ class ConnectionRequest(BaseModel):
     username: str
     ip: str
 
-def remove_existing_ip(ip_address: str, sudo_password: str):
-    """Удаляет существующее правило ufw для заданного IP-адреса."""
-    try:
-        process_delete = subprocess.Popen(
-            ["sudo", "-S", "ufw", "delete", "allow", "from", ip_address, "to", "any", "port", "25565"],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
-        )
-        stdout, stderr = process_delete.communicate(input=sudo_password + "\n")
-        if process_delete.returncode != 0:
-            raise Exception(f"Failed to delete existing rule: {stderr}")
-    except Exception as e:
-        raise Exception(f"Error removing existing IP: {str(e)}")
+# def remove_existing_ip(ip_address: str, sudo_password: str):
+#     """Удаляет существующее правило ufw для заданного IP-адреса."""
+#     try:
+#         process_delete = subprocess.Popen(
+#             ["sudo", "-S", "ufw", "delete", "allow", "from", ip_address, "to", "any", "port", "25565"],
+#             stdin=subprocess.PIPE,
+#             stdout=subprocess.PIPE,
+#             stderr=subprocess.PIPE,
+#             text=True
+#         )
+#         stdout, stderr = process_delete.communicate(input=sudo_password + "\n")
+#         if process_delete.returncode != 0:
+#             raise Exception(f"Failed to delete existing rule: {stderr}")
+#     except Exception as e:
+#         raise Exception(f"Error removing existing IP: {str(e)}")
 
 @app.post("/v1/allowConnectByApi")
 async def allow_connection(request: ConnectionRequest):
@@ -56,15 +56,6 @@ async def allow_connection(request: ConnectionRequest):
         if not user:
             logger.error(f"User {mc_username} not found.")
             raise HTTPException(status_code=404, detail="User not found.")
-
-        if "last_ip" in user and user["last_ip"]:
-            logger.info(f"User {mc_username} has existing last_ip: {user['last_ip']}")
-            try:
-                remove_existing_ip(user["last_ip"], sudo_password)
-                logger.info(f"Existing IP {user['last_ip']} removed for user {mc_username}.")
-            except Exception as e:
-                logger.error(f"Error removing existing IP for user {mc_username}: {str(e)}")
-                raise HTTPException(status_code=500, detail=f"Error removing existing IP: {str(e)}")
 
         logger.info(f"Updating last_ip to {ip_address} for user {mc_username}.")
         update_result = db_manager.users.update_one({"_id": user["_id"]}, {"$set": {"last_ip": ip_address}})
