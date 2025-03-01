@@ -8,10 +8,10 @@ import discord
 from bot.forms.pedding_from_embed import PenddingFormEmbedManager, TelegramFormStatusEmbedManager
 from database.database import DatabaseManager
 from config import FORM_FIELDS, FORM_STATUSES
+from discord_bot import discord_client
 
 class TelegramForm:
     def __init__(self, bot, db_manager: DatabaseManager):
-        self.discord_client = None
         self.bot = bot
         self.db_manager = db_manager
         self.fields = FORM_FIELDS
@@ -61,12 +61,11 @@ class TelegramForm:
 
         # self.db_manager.forms.insert_one(form_data)
         await TelegramFormStatusEmbedManager.send_status_message(self.bot, self.db_manager, user_id, mc_username)
-        await self.send_form_to_discord(self.discord_client, form_data)
+        await self.send_form_to_discord(form_data) 
 
         await message.answer("Анкета отправлена!")
 
-    async def start_form(self, message: types.Message, state: FSMContext, discord_client):
-        self.discord_client = discord_client
+    async def start_form(self, message: types.Message, state: FSMContext):
         """Начинает процесс заполнения формы."""
         self.data = {}
         self.current_field_index = 0
@@ -108,13 +107,13 @@ class TelegramForm:
         else:
             await self.finish_form(message, state)
     
-    async def send_form_to_discord(self, client, form_data):
+    async def send_form_to_discord(self, form_data):
 
         guild_id = 993224057464041552  # Замените на ID вашего сервера
         decision_channel_id = self.db_manager.get_decision_channel_id(guild_id)
 
         if decision_channel_id:
-            decision_channel = client.get_channel(decision_channel_id)
+            decision_channel = discord_client.get_channel(decision_channel_id)
             if decision_channel:
                 embed = discord.Embed(title="Анкета (Telegram)", color=0x2AABEE)  # Синий цвет Telegram
                 embed.set_author(name=form_data['telegram_name'], icon_url="https://static.vecteezy.com/system/resources/previews/023/986/562/non_2x/telegram-logo-telegram-logo-transparent-telegram-icon-transparent-free-free-png.png")

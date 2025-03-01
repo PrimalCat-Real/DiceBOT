@@ -10,6 +10,7 @@ from database.database import DatabaseManager
 import logging
 
 
+discord_client = None 
 # API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_KEY}"
 
 # def send_api_request(prompt: str) -> str:
@@ -67,7 +68,7 @@ import logging
 
 #         await asyncio.sleep(60)  # Проверяем каждые 10 минут
 
-discord_bot = None
+
 
 class DiscordBot(commands.Bot):
     def __init__(self, token, command_prefix="!", intents=discord.Intents.default(), logger=logging, database_manager: DatabaseManager = None):
@@ -79,8 +80,8 @@ class DiscordBot(commands.Bot):
         self.embed_manager = EmbedManager()
 
     async def on_ready(self):
-        global discord_bot
-        discord_bot = self 
+        global discord_client
+        discord_client = self 
         await self.tree.sync()
         self.logger.info("Discord bot is ready!")
         self.logger.info('------')
