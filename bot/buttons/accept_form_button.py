@@ -1,4 +1,5 @@
 import logging
+import random
 import discord
 from datetime import datetime
 
@@ -59,7 +60,7 @@ class AcceptFormButton(discord.ui.Button):
                 from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
                 await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, discord_id, self.form_data["mc_username"])
                 await self.update_user_status_change(interaction.user.id, self.form_data["mc_username"])
-
+                await self.send_approved_embed(interaction.client, interaction.guild.id, self.form_data)
             async def update_user_status_change(self, user_id, mc_username):
                 user = self.db_manager.users.find_one({"discord_id": user_id})
                 if user:
@@ -74,4 +75,21 @@ class AcceptFormButton(discord.ui.Button):
                         "forms_done": [{"mc_nickname": mc_username, "approve_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]
                     }
                     self.db_manager.users.insert_one(new_user)    
+            async def send_approved_embed(self, client, guild_id, form_data):
+                channel_id = self.db_manager.get_approved_channel_id(guild_id)
+                if channel_id:
+                    channel = client.get_channel(channel_id)
+                    if channel:
+                        embed = discord.Embed(
+                            title="Анкета принята:",
+                            description=form_data["rp_story"],
+                            color=discord.Color.from_rgb(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                        )
+                        embed.set_author(name=form_data["discord_name"], icon_url=form_data["discord_avatar"])
+                        await channel.send(embed=embed)
+                    else:
+                        logging.error(f"Channel with ID {channel_id} not found.")
+                else:
+                    logging.error(f"Approved channel ID not set for guild {guild_id}.")
+
         await interaction.response.send_modal(ReasonModal(self.db_manager, self.form_data))
