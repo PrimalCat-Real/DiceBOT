@@ -14,7 +14,7 @@ class TelegramBot:
         self.bot = Bot(token=self.token)
         self.dp = Dispatcher()
         self.form = TelegramForm(self.bot, self.database_manager)
-        self.bot.discord_client = discord_client
+        self.discord_client = discord_client
 
     async def start(self, message: types.Message, state: FSMContext):
         await self.form.start_form(message, state)

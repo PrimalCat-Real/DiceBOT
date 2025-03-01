@@ -5,13 +5,13 @@ from datetime import datetime
 
 import discord
 
-from discord_bot import discord_bot
 from bot.forms.pedding_from_embed import PenddingFormEmbedManager, TelegramFormStatusEmbedManager
 from database.database import DatabaseManager
 from config import FORM_FIELDS, FORM_STATUSES
 
 class TelegramForm:
     def __init__(self, bot, db_manager: DatabaseManager):
+        self.discord_client = None
         self.bot = bot
         self.db_manager = db_manager
         self.fields = FORM_FIELDS
@@ -61,11 +61,12 @@ class TelegramForm:
 
         # self.db_manager.forms.insert_one(form_data)
         await TelegramFormStatusEmbedManager.send_status_message(self.bot, self.db_manager, user_id, mc_username)
-        await self.send_form_to_discord(discord_bot, form_data)
+        await self.send_form_to_discord(self.discord_client, form_data)
 
         await message.answer("Анкета отправлена!")
 
-    async def start_form(self, message: types.Message, state: FSMContext):
+    async def start_form(self, message: types.Message, state: FSMContext, discord_client):
+        self.discord_client = discord_client
         """Начинает процесс заполнения формы."""
         self.data = {}
         self.current_field_index = 0
