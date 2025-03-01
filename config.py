@@ -41,21 +41,6 @@ def is_moderator(interaction: discord.Interaction) -> bool:
             return True
     return False
 
-def is_admin(role_id: int) -> bool:
-    """
-    Проверяет, является ли роль административной.
-    :param role_id: ID роли.
-    :return: True, если роль административная, иначе False.
-    """
-    return role_id in admin_roles
-
-def is_moderator(role_id: int) -> bool:
-    """
-    Проверяет, является ли роль модераторской или административной.
-    :param role_id: ID роли.
-    :return: True, если роль модераторская или административная, иначе False.
-    """
-    return role_id in moder_roles or role_id in admin_roles
 
 FORM_FIELDS = [
     FormField("Ник в игре", "Minecraft ник, который будет добавлен в вайт-лист", key="minecraft_username", required=True, max_length=24, regex=r"^[a-zA-Z0-9_]{3,16}$"),
