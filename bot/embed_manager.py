@@ -10,7 +10,7 @@ class EmbedManager:
         'discord.ui.Button': discord.ui.Button,
         'FillFormButton': FillFormButton,
         'AcceptFormButton': AcceptFormButton,
-        'discord.ui.Button.link': discord.ui.Button.link
+        'discord.ui.Button.link': discord.ui.Button
     }
 
     @staticmethod
