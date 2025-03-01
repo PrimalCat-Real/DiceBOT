@@ -6,6 +6,7 @@ from datetime import datetime
 
 import discord
 
+
 from bot.forms.pedding_from_embed import PenddingFormEmbedManager, TelegramFormStatusEmbedManager
 from database.database import DatabaseManager
 from config import FORM_FIELDS, FORM_STATUSES
@@ -150,8 +151,23 @@ class TelegramForm:
             form_status = FORM_STATUSES[form_data["status"]]
             embed.add_field(name="Статус", value=form_status.name, inline=False)
 
-            await decision_channel.send(embed=embed)
-            logging.info(f"Form sent to Discord channel {decision_channel_id}.")
+            from bot.buttons.accept_form_button import AcceptFormButton
+            from bot.buttons.decline_form_button import DeclineFormButton
+            from bot.embed_manager import EmbedManager
+            accept_button = AcceptFormButton(self.db_manager, form_data)
+            decline_button = DeclineFormButton(self.db_manager, form_data)
+            view = EmbedManager.create_view([accept_button, decline_button])
+            button_types = ['AcceptFormButton', 'DeclineFormButton']
+
+            # Отправка сообщения с кнопками
+            message = await EmbedManager.send_embed_with_view(decision_channel, embed, view, button_types, self.db_manager)
+            message_id = message.id
+            self.db_manager.forms.update_one({"mc_username": form_data["mc_username"]}, {"$set": {"message_id": message_id}})
+
+            logging.info(f"Form sent to Discord channel {decision_channel_id} with buttons. Message ID: {message_id}")
+
+            # await decision_channel.send(embed=embed)
+            # logging.info(f"Form sent to Discord channel {decision_channel_id}.")
 
         except Exception as e:
             logging.error(f"Error sending form to Discord: {e}", exc_info=True)
