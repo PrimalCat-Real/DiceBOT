@@ -79,7 +79,7 @@ class DiscordForm(Form):
                     "age": age,
                     "rp_experience": self.form.data.get("rp_experience", None),
                     "rp_story": self.form.data.get("rp_character_story", None),
-                    "source_info": self.form.data.get("how_did_you_find_us", None),
+                    "source_info": self.form.data.get("how_did_you_find_us", "Не указал"),
                     "submission_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                     "status": "pending"
                 }
