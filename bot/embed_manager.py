@@ -61,11 +61,11 @@ class EmbedManager:
                                 logger.error(f"Form or user data not found for message {message.id}")
                                 continue
                         elif button_type_name == 'discord.ui.Button.link':
-                            link_button = next((item for item in message.components[0].children if isinstance(item, discord.ui.Button) and item.style == discord.ButtonStyle.link), None)
+                            link_button = next((item for item in message.components[0].children if item.url), None) if message.components else None
                             if link_button:
                                 button = button_class(url=link_button.url, label=link_button.label)
                             else:
-                                logger.error(f"Link button not found in message components for message {message.id}")
+                                logger.error(f"Link button with URL not found in message components for message {message.id}")
                                 continue
                         else:
                             button = button_class(db_manager)
