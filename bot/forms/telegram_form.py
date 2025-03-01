@@ -127,6 +127,7 @@ class TelegramForm:
         
         try:
             from main import discord_bot_instance
+            
             decision_channel = discord_bot_instance.get_channel(decision_channel_id)
 
             if not decision_channel:
