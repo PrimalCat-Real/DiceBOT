@@ -67,11 +67,12 @@ class TelegramForm:
             self.db_manager.forms.insert_one(form_data)
 
         await TelegramFormStatusEmbedManager.send_status_message(self.bot, self.db_manager, user_id, mc_username)
-        await self.send_form_to_discord(form_data)
+        await self.send_form_to_discord(form_data, self.discord_client)
 
         await message.answer("Анкета отправлена!")
 
-    async def start_form(self, message: types.Message, state: FSMContext):
+    async def start_form(self, message: types.Message, state: FSMContext, client):
+        self.discord_client = client
         """Начинает процесс заполнения формы."""
         self.data = {}
         self.current_field_index = 0
@@ -113,7 +114,7 @@ class TelegramForm:
         else:
             await self.finish_form(message, state)
     
-    async def send_form_to_discord(self, form_data):
+    async def send_form_to_discord(self, form_data, discord_client ):
         logging.info("Starting send_form_to_discord...")
         guild_id = 993224057464041552  # Замените на ID вашего сервера
         decision_channel_id = self.db_manager.get_decision_channel_id(guild_id)
@@ -126,9 +127,8 @@ class TelegramForm:
             return
         
         try:
-            from main import discord_bot_instance
-            
-            decision_channel = discord_bot_instance.get_channel(decision_channel_id)
+            print(discord_client)
+            decision_channel = discord_client.get_channel(decision_channel_id)
 
             if not decision_channel:
                 logging.warning(f"Decision channel with ID {decision_channel_id} not found.")
