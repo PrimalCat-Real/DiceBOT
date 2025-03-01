@@ -61,6 +61,7 @@ class AcceptFormButton(discord.ui.Button):
                 await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, discord_id, self.form_data["mc_username"])
                 await self.update_user_status_change(interaction.user.id, self.form_data["mc_username"])
                 await self.send_approved_embed(interaction.client, interaction.guild.id, self.form_data)
+
             async def update_user_status_change(self, user_id, mc_username):
                 user = self.db_manager.users.find_one({"discord_id": user_id})
                 if user:
@@ -75,6 +76,7 @@ class AcceptFormButton(discord.ui.Button):
                         "forms_done": [{"mc_nickname": mc_username, "status": "accept", "approve_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]
                     }
                     self.db_manager.users.insert_one(new_user)    
+                    
             async def send_approved_embed(self, client, guild_id, form_data):
                 channel_id = self.db_manager.get_approved_channel_id(guild_id)
                 if channel_id:
