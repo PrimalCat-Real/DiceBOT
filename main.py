@@ -36,7 +36,7 @@ db_manager = DatabaseManager(connection_string, database_name)
 # async def run_telegram_bot():
 #     telegram_bot = TelegramBot(token=TELEGRAM_TOKEN, logger=logger, database_manager=db_manager)
 #     await telegram_bot.run_bot()
-tg_bot_client = None
+
 async def main():
     intents = discord.Intents.default()
     intents.message_content = True
@@ -44,8 +44,7 @@ async def main():
     
     # Передаем инстанс Discord бота в Telegram бота
     telegram_bot = TelegramBot(token=TELEGRAM_TOKEN, logger=logger, database_manager=db_manager, discord_client=discord_bot_instance.client)
-    global tg_bot_client
-    tg_bot_client = telegram_bot
+    discord_bot_instance.set_tg_bot(telegram_bot)
     discord_task = asyncio.create_task(discord_bot_instance.run_bot())
     telegram_task = asyncio.create_task(telegram_bot.run_bot())
 

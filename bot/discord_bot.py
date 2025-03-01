@@ -75,9 +75,14 @@ class DiscordBot(commands.Bot):
         self.token = token
         self.logger = logger
         self.database_manager = database_manager
+        
         self.embed_manager = EmbedManager()
         self.client = self
+        self.tg_bot = None
         self.discord_commands = CommandManager(self, database_manager, logger)
+
+    def set_tg_bot(self, tg_bot):
+        self.tg_bot = tg_bot
 
     async def on_ready(self):
         await self.tree.sync()
