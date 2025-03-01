@@ -3,6 +3,7 @@ import random
 import discord
 from datetime import datetime
 
+
 from config import FORM_STATUSES, PLAYER_ROLE_ID
 from database.database import DatabaseManager
 
@@ -59,7 +60,15 @@ class AcceptFormButton(discord.ui.Button):
 
                 await interaction.response.edit_message(embed=embed, view=None)
                 self.db_manager.discord_embeds.delete_one({"message_id": interaction.message.id})
-                from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
+                
+                if self.form_data.get("discord_user_id"):
+                    from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
+                    await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, user_id, self.form_data["mc_username"])
+                elif self.form_data.get("telegram_user_id"):
+                    from main import tg_bot_client
+                    # Получаем экземпляр бота из interaction.client
+                    from bot.forms.pedding_from_embed import TelegramFormStatusEmbedManager
+                    await TelegramFormStatusEmbedManager.send_status_message(tg_bot_client, self.db_manager, int(user_id), self.form_data["mc_username"])
                 # await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, user_id, self.form_data["mc_username"])
                 await self.update_user_status_change(interaction.user.id, self.form_data["mc_username"])
                 await self.send_approved_embed(interaction.client, interaction.guild.id, self.form_data)

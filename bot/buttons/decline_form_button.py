@@ -1,9 +1,10 @@
 import logging
 import discord
 from datetime import datetime
+from bot.forms.pedding_from_embed import TelegramFormStatusEmbedManager
 from config import FORM_STATUSES
 from database.database import DatabaseManager
-from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
+
 
 class DeclineFormButton(discord.ui.Button):
     def __init__(self, db_manager: DatabaseManager, form_data, *args, **kwargs):
@@ -43,6 +44,13 @@ class DeclineFormButton(discord.ui.Button):
                 user_id = self.form_data.get("discord_user_id") or self.form_data.get("telegram_user_id")
                 # await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, user_id,
                 #                                               self.form_data["mc_username"])
+                if self.form_data.get("discord_user_id"):
+                    from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
+                    await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, user_id, self.form_data["mc_username"])
+                elif self.form_data.get("telegram_user_id"):
+                    # Получаем экземпляр бота из interaction.client
+                    from main import tg_bot_client
+                    await TelegramFormStatusEmbedManager.send_status_message(tg_bot_client, self.db_manager, int(user_id), self.form_data["mc_username"])
                 await self.update_user_status_change(interaction.user.id, self.form_data["mc_username"])
                 self.db_manager.delete_form(self.form_data["mc_username"])
 
