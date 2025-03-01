@@ -1,4 +1,5 @@
 from discord import Color, Embed
+import discord
 
 from bot.forms.form import FormField, FormStatus
 
@@ -10,11 +11,35 @@ moder_roles = [1294635010053242941, 1330811514558484492]
 
 guild_id = 993224057464041552
 
-def is_admin(role_id):
-    return role_id in admin_roles
+def is_admin(interaction: discord.Interaction) -> bool:
+    """
+    Проверяет, является ли пользователь администратором.
+    :param interaction: Объект Interaction из discord.py.
+    :return: True, если пользователь администратор, иначе False.
+    """
+    # Получаем роли пользователя
+    user_roles = interaction.user.roles
 
-def is_moderator(role_id):
-    return role_id in moder_roles or role_id in admin_roles
+    # Проверяем, есть ли у пользователя хотя бы одна административная роль
+    for role in user_roles:
+        if role.id in admin_roles:
+            return True
+    return False
+
+def is_moderator(interaction: discord.Interaction) -> bool:
+    """
+    Проверяет, является ли пользователь модератором.
+    :param interaction: Объект Interaction из discord.py.
+    :return: True, если пользователь модератор, иначе False.
+    """
+    # Получаем роли пользователя
+    user_roles = interaction.user.roles
+
+    # Проверяем, есть ли у пользователя хотя бы одна модераторская или административная роль
+    for role in user_roles:
+        if role.id in moder_roles or role.id in admin_roles:
+            return True
+    return False
 
 FORM_FIELDS = [
     FormField("Ник в игре", "Minecraft ник, который будет добавлен в вайт-лист", key="minecraft_username", required=True, max_length=24, regex=r"^[a-zA-Z0-9_]{3,16}$"),
