@@ -47,12 +47,15 @@ class TelegramForm:
             "telegram_chat_id": message.chat.id
         }
 
-        existing_user = self.db_manager.users.find_one({"mc_username": mc_username})
+        existing_user = self.db_manager.users.find_one({"telegram_id": user_id})
+
         if existing_user:
+            # Пользователь найден, обновляем только отсутствующие поля
             update_data = {k: v for k, v in user_data.items() if k not in existing_user}
             if update_data:
-                self.db_manager.users.update_one({"mc_username": mc_username}, {"$set": update_data})
+                self.db_manager.users.update_one({"telegram_id": user_id}, {"$set": update_data})
         else:
+            # Пользователь не найден, создаем нового
             self.db_manager.users.insert_one(user_data)
 
         # Проверка дубликата анкеты
