@@ -67,7 +67,7 @@ class AcceptFormButton(discord.ui.Button):
                 elif self.form_data.get("telegram_user_id"):
                     # Получаем экземпляр бота из interaction.client
                     from bot.forms.pedding_from_embed import TelegramFormStatusEmbedManager
-                    await TelegramFormStatusEmbedManager.send_status_message(interaction.client.tg_bot, self.db_manager, int(user_id), self.form_data["mc_username"])
+                    await TelegramFormStatusEmbedManager.send_status_message(interaction.client.tg_bot.bot, self.db_manager, int(user_id), self.form_data["mc_username"])
                 # await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, user_id, self.form_data["mc_username"])
                 await self.update_user_status_change(interaction.user.id, self.form_data["mc_username"])
                 await self.send_approved_embed(interaction.client, interaction.guild.id, self.form_data)
