@@ -120,8 +120,16 @@ class TelegramForm:
     
     async def send_form_to_discord(self, form_data, discord_client ):
         logging.info("Starting send_form_to_discord...")
-        guild_id = 993224057464041552  # Замените на ID вашего сервера
+        # guild_id = 993224057464041552  # Замените на ID вашего сервера
+        # decision_channel_id = self.db_manager.get_decision_channel_id(guild_id)
+        guild_id = self.db_manager.get_first_guild_id()
+        if not guild_id:
+            raise ValueError("Guild ID не найден в базе данных.")
+
+        # Получаем ID канала для решений
         decision_channel_id = self.db_manager.get_decision_channel_id(guild_id)
+        if not decision_channel_id:
+            raise ValueError("Канал для решений не настроен.")
         if not guild_id:
             logging.warning("Guild ID not found in database.")
             return

@@ -6,7 +6,7 @@ import logging
 from bot.buttons.fill_form_button import FillFormButton
 from bot.embed_manager import EmbedManager
 from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
-from config import messages
+from config import messages, is_admin
 from database.database import DatabaseManager
 class CommandManager:
     def __init__(self, client, db_manager: DatabaseManager, logger=logging):
@@ -28,6 +28,9 @@ class CommandManager:
             app_commands.Choice(name="delete_form", value="delete_form"),
         ])
         async def discord_command(interaction: Interaction, command: app_commands.Choice[str]):
+            if not is_admin(interaction):
+                await interaction.response.send_message("У вас недостаточно прав для выполнения этой команды.", ephemeral=True)
+                return
             commands = {
                 "set_guild_id": self.set_guild_id,
                 "send_welcome_message": self.send_welcome_message,

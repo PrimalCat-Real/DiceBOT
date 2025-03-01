@@ -8,12 +8,20 @@ from config import FORM_STATUSES
 
 
 class PenddingFormEmbedManager:
-    MODERATOR_ROLE_ID = 1234567890
+    MODERATOR_ROLE_ID = 1294635010053242941
     
     @staticmethod
     async def send_decision_embed(client, form_data, user_data, db_manager):
-        guild_id = 993224057464041552
+        # guild_id = 993224057464041552
+        # decision_channel_id = db_manager.get_decision_channel_id(guild_id)
+        guild_id = db_manager.get_first_guild_id()
+        if not guild_id:
+            raise ValueError("Guild ID не найден в базе данных.")
+
+        # Получаем ID канала для решений
         decision_channel_id = db_manager.get_decision_channel_id(guild_id)
+        if not decision_channel_id:
+            raise ValueError("Канал для решений не настроен.")
 
         if decision_channel_id:
             decision_channel = client.get_channel(decision_channel_id)

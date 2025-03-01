@@ -101,7 +101,11 @@ class DatabaseManager:
         if config and "decision_channel_id" in config:
             return config["decision_channel_id"]
         return None
-
+    def get_first_guild_id(self) -> int:
+        config = self.configs.find_one({}, {"guild_id": 1})
+        if config and "guild_id" in config:
+            return config["guild_id"]
+        return None
     def get_approved_channel_id(self, guild_id: int) -> int:
         config = self.configs.find_one({'guild_id': guild_id})
         if config and "approved_channel_id" in config:
