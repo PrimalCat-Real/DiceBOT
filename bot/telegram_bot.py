@@ -7,6 +7,12 @@ from database.database import DatabaseManager
 from aiogram.fsm.context import FSMContext
 
 class TelegramBot:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
     def __init__(self, token, logger=None, database_manager: DatabaseManager = None, discord_client = None):
         self.token = token
         self.logger = logger
