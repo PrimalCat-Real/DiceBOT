@@ -24,7 +24,7 @@ class ConnectionRequest(BaseModel):
 async def allow_connection(request: ConnectionRequest):
     ip_address = request.ip
     mc_username = request.username
-    sudo_password = "SimplePass123"
+    sudo_password = ""
 
     try:
         # Проверяем, существует ли пользователь с таким ником
