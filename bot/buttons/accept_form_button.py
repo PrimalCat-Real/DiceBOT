@@ -39,7 +39,7 @@ class AcceptFormButton(discord.ui.Button):
                 if await add_to_whitelist(self.form_data["mc_username"]):
                     logging.info(f"{self.form_data['mc_username']} added to whitelist.")
 
-                discord_id = self.user_data["discord_user_id"]
+                discord_id = int(self.form_data["discord_user_id"])
                 user = interaction.guild.get_member(discord_id)
                 if user:
                     role = interaction.guild.get_role(PLAYER_ROLE_ID)
@@ -52,7 +52,8 @@ class AcceptFormButton(discord.ui.Button):
                         except discord.HTTPException as e:
                             logging.error(f"Failed to add role {role.name} to {user.name}: {e}")
                 else:
-                    logging.warning(f"User with ID {self.user_data['discord_id']} not found in guild.")
+                    logging.warning(f"User with ID {discord_id} not found in guild.")
+
                 await interaction.response.edit_message(embed=embed, view=None)
                 self.db_manager.discord_embeds.delete_one({"message_id": interaction.message.id})
                 from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
