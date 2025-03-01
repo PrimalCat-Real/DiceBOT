@@ -8,7 +8,7 @@ import discord
 from bot.forms.pedding_from_embed import PenddingFormEmbedManager, TelegramFormStatusEmbedManager
 from database.database import DatabaseManager
 from config import FORM_FIELDS, FORM_STATUSES
-from discord_bot import discord_client
+from bot.discord_bot import discord_client
 
 class TelegramForm:
     def __init__(self, bot, db_manager: DatabaseManager):
