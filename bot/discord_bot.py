@@ -7,6 +7,8 @@ from discord.ext import commands
 
 from bot.discord_commands import CommandManager
 from bot.embed_manager import EmbedManager
+
+
 from database.database import DatabaseManager
 import logging
 
@@ -55,24 +57,65 @@ class DiscordBot(commands.Bot):
                     gemini_response = send_api_request(rp_story)
                     if gemini_response is not None:  # Проверка на None перед обработкой
                         if gemini_response:  # True = approved
-                            # db_manager.forms.update_one({"mc_username": form["mc_username"]}, {"$set": {"status": "approved"}})
+                            db_manager.forms.update_one({"mc_username": form["mc_username"]}, {"$set": {"status": "approved"}})
                             logging.info(f"Form {form['mc_username']} automatically approved by AI.")
-                            discord_id = int(form["discord_user_id"])
+                            # discord_id = int(form["discord_user_id"])
+                            await self.update_embed_status(form, "approved")
                             # from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
                             # await FormStatusEmbedManager.send_status_embed(client, db_manager, discord_id, form["mc_username"])
 
                         else:  # False = rejected
-                            # db_manager.forms.update_one({"mc_username": form["mc_username"]}, {"$set": {"status": "rejected"}})
+                            db_manager.forms.update_one({"mc_username": form["mc_username"]}, {"$set": {"status": "rejected"}})
                             logging.info(f"Form {form['mc_username']} automatically rejected by AI.")
-                            discord_id = int(form["discord_user_id"])
+                            # discord_id = int(form["discord_user_id"])
+                            await self.update_embed_status(form, "rejected")
                             # from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
                             # await FormStatusEmbedManager.send_status_embed(client, db_manager, discord_id, form["mc_username"])
                     else:
                         logging.error(f"Gemini response was None for {form['mc_username']}.")
                         continue
 
-            await asyncio.sleep(60)  # Проверяем каждые 10 минут
+            await asyncio.sleep(60)
 
+    async def update_embed_status(self, form, status):
+        embed_data = self.database_manager.discord_embeds.find_one({"mc_username": form["mc_username"]})
+        if embed_data and embed_data.get("message_id"):
+            try:
+                channel = self.client.get_channel(embed_data["channel_id"])
+                message = await channel.fetch_message(embed_data["message_id"])
+                embed = message.embeds[0]
+
+                embed.set_field_at(embed.fields.index(next(field for field in embed.fields if field.name == "Статус")), name="Статус", value=FORM_STATUSES[status].name)
+
+                if status == "approved":
+                    embed.add_field(name="Одобрено", value="AI", inline=False)
+                    embed.add_field(name="Время одобрения", value=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), inline=False)
+                    embed.add_field(name="Причина", value="Автоматическое одобрение Искусственным Интеллектом", inline=False)
+                else:
+                    embed.add_field(name="Отклонено", value="AI", inline=False)
+                    embed.add_field(name="Время отклонения", value=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), inline=False)
+                    embed.add_field(name="Причина", value="Автоматический отказ Искусственным Интеллектом", inline=False)
+
+                
+
+                from config import FORM_STATUSES
+                # Обновление цвета
+                embed.color = discord.Color(FORM_STATUSES[status].color)
+
+                await message.edit(embed=embed, view=None)
+                self.database_manager.discord_embeds.delete_one({"message_id": embed_data["message_id"]})
+
+
+                if form.get("discord_user_id"):
+                    from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
+                    await FormStatusEmbedManager.send_status_embed(self.client, self.database_manager, int(form["discord_user_id"]), form["mc_username"])
+                elif form.get("telegram_user_id"):
+                    from bot.forms.pedding_from_embed import TelegramFormStatusEmbedManager
+                    await TelegramFormStatusEmbedManager.send_status_message(self.client.tg_bot.bot, self.database_manager, int(form["telegram_user_id"]), form["mc_username"])
+            
+            except (discord.NotFound, discord.HTTPException) as e:
+                logging.error(f"Failed to update embed for {form['mc_username']}: {e}")
+                
     def close(self):
         loop = asyncio.get_running_loop()
         try:
