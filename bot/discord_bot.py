@@ -38,7 +38,7 @@ class DiscordBot(commands.Bot):
         self.logger.info("Discord bot is ready!")
         self.logger.info('------')
         await self.embed_manager.restore_all_embeds(self, self.database_manager, self.logger)
-        asyncio.create_task(self.check_pending_forms(self.database_manager, self.client))
+        asyncio.create_task(self.check_pending_forms(self.database_manager))
 
     async def run_bot(self):
         await self.start(self.token)
