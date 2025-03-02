@@ -70,6 +70,7 @@ class DiscordBot(commands.Bot):
                             logging.info(f"Form {form['mc_username']} automatically rejected by AI.")
                             # discord_id = int(form["discord_user_id"])
                             await self.update_embed_status(form, "rejected")
+                            db_manager.delete_form(form["mc_username"])
                             # from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
                             # await FormStatusEmbedManager.send_status_embed(client, db_manager, discord_id, form["mc_username"])
                     else:
