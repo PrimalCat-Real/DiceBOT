@@ -85,12 +85,25 @@ class DiscordForm(Form):
                 }
 
                 existing_user = self.db_manager.users.find_one({"mc_username": mc_username})
+
                 if existing_user:
-                    update_data = {k: v for k, v in user_data.items() if k not in existing_user}
+                    # Если пользователь найден по mc_username, обновляем его данные
+                    update_data = {k: v for k, v in form_data.items() if k not in existing_user}
                     if update_data:
                         self.db_manager.users.update_one({"mc_username": mc_username}, {"$set": update_data})
                 else:
-                    self.db_manager.users.insert_one(user_data)
+                    # Если пользователь не найден по mc_username, пытаемся найти его по discord_name
+                    existing_user_by_discord_name = self.db_manager.users.find_one({"discord_name": interaction.user.name})
+                    
+                    if existing_user_by_discord_name:
+                        # Если пользователь найден по discord_name, обновляем его данные
+                        update_data = {k: v for k, v in form_data.items() if k not in existing_user_by_discord_name}
+                        if update_data:
+                            self.db_manager.users.update_one({"discord_name": interaction.user.name}, {"$set": update_data})
+                    else:
+                        # Если пользователь не найден ни по mc_username, ни по discord_name, создаем нового пользователя
+                        self.db_manager.users.insert_one(form_data)
+
 
         
                 if self.db_manager.check_form_duplicate(mc_username):

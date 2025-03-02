@@ -27,7 +27,7 @@ class AcceptFormButton(discord.ui.Button):
                 await self.process_approval(interaction, reason)
 
             async def process_approval(self, interaction, reason):
-                self.db_manager.forms.update_one({"mc_username": self.form_data["mc_username"]}, {"$set": {"status": "approved", "approved_by": interaction.user.id, "approved_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'), "reason": reason}})
+                self.db_manager.forms.update_one({"mc_username": self.form_data["mc_username"]}, {"$set": {"status": "approved", "approved_by": interaction.user.name, "approved_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'), "reason": reason}})
                 embed = interaction.message.embeds[0]
                 embed.set_field_at(embed.fields.index(next(field for field in embed.fields if field.name == "Статус")), name="Статус", value=FORM_STATUSES["approved"].name)
                 embed.add_field(name="Одобрено", value=f"<@{interaction.user.id}>", inline=False)
@@ -69,23 +69,39 @@ class AcceptFormButton(discord.ui.Button):
                     from bot.forms.pedding_from_embed import TelegramFormStatusEmbedManager
                     await TelegramFormStatusEmbedManager.send_status_message(interaction.client.tg_bot.bot, self.db_manager, int(user_id), self.form_data["mc_username"])
                 # await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, user_id, self.form_data["mc_username"])
-                await self.update_user_status_change(interaction.user.id, self.form_data["mc_username"])
+                await self.update_user_status_change(interaction, interaction.user.id, self.form_data["mc_username"])
                 await self.send_approved_embed(interaction.client, interaction.guild.id, self.form_data)
 
-            async def update_user_status_change(self, user_id, mc_username):
+            async def update_user_status_change(self, interaction, user_id, mc_username):
                 user = self.db_manager.users.find_one({"discord_id": user_id})
                 if user:
                     status_change_count = user.get("status_change_count", 0) + 1
                     forms_done = user.get("forms_done", [])
-                    forms_done.append({"mc_nickname": mc_username, "status": "accept", "approve_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')})
-                    self.db_manager.users.update_one({"discord_id": user_id}, {"$set": {"status_change_count": status_change_count, "forms_done": forms_done}})
+                    forms_done.append({
+                        "mc_nickname": mc_username,
+                        "status": "accept",
+                        "approve_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
+                    self.db_manager.users.update_one(
+                        {"discord_id": user_id},
+                        {"$set": {
+                            "status_change_count": status_change_count,
+                            "forms_done": forms_done,
+                            "discord_name": interaction.user.name
+                        }}
+                    )
                 else:
                     new_user = {
                         "discord_id": user_id,
+                        "discord_name": interaction.user.name,
                         "status_change_count": 1,
-                        "forms_done": [{"mc_nickname": mc_username, "status": "accept", "approve_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]
+                        "forms_done": [{
+                            "mc_nickname": mc_username,
+                            "status": "accept",
+                            "approve_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        }]
                     }
-                    self.db_manager.users.insert_one(new_user)    
+                    self.db_manager.users.insert_one(new_user)  
                     
             async def send_approved_embed(self, client, guild_id, form_data):
                 channel_id = self.db_manager.get_approved_channel_id(guild_id)

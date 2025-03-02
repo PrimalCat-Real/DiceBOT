@@ -95,7 +95,7 @@ class TelegramFormStatusEmbedManager:
         message_text = TelegramFormStatusEmbedManager.create_status_message(status, form)
 
         try:
-            await bot.send_message(chat_id=form["telegram_chat_id"], text=message_text)
+            await bot.send_message(chat_id=form["telegram_chat_id"], text=message_text, parse_mode="Markdown")
             print(f"Статус анкеты для пользователя {user_id} отправлен: {status.name}")
         except Exception as e:
             print(f"Произошла ошибка при отправке статуса анкеты пользователю {user_id}: {e}")

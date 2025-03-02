@@ -27,7 +27,7 @@ class DeclineFormButton(discord.ui.Button):
 
             async def process_decline(self, interaction, reason):
                 self.db_manager.forms.update_one({"mc_username": self.form_data["mc_username"]},
-                                                 {"$set": {"status": "rejected", "rejected_by": interaction.user.id,
+                                                 {"$set": {"status": "rejected", "rejected_by": interaction.user.name,
                                                            "rejected_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                                                            "reason": reason}})
                 embed = interaction.message.embeds[0]
@@ -59,14 +59,33 @@ class DeclineFormButton(discord.ui.Button):
                 if user:
                     status_change_count = user.get("status_change_count", 0) + 1
                     forms_done = user.get("forms_done", [])
-                    forms_done.append({"mc_nickname": mc_username, "status": "rejected", "approve_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')})
-                    self.db_manager.users.update_one({"discord_id": user_id}, {"$set": {"status_change_count": status_change_count, "forms_done": forms_done}})
+                    forms_done.append({
+                        "mc_nickname": mc_username,
+                        "status": "rejected",
+                        "approve_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    })
+                    self.db_manager.users.update_one(
+                        {"discord_id": user_id},
+                        {"$set": {
+                            "status_change_count": status_change_count,
+                            "forms_done": forms_done,
+                            "discord_name": interaction.user.name
+                        }}
+                    )
                 else:
                     new_user = {
                         "discord_id": user_id,
+                        "discord_name": interaction.user.name,
                         "status_change_count": 1,
-                        "forms_done": [{"mc_nickname": mc_username, "status": "rejected", "approve_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]
+                        "forms_done": [{
+                            "mc_nickname": mc_username,
+                            "status": "rejected",
+                            "approve_time": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                        }]
                     }
-                    self.db_manager.users.insert_one(new_user)
+                    self.db_manager.users.insert_one(new_user)  
 
+
+
+                
         await interaction.response.send_modal(ReasonModal(self.db_manager, self.form_data))
