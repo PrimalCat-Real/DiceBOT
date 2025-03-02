@@ -81,12 +81,16 @@ class DiscordBot(commands.Bot):
         form_data = self.database_manager.forms.find_one({"mc_username": form["mc_username"]})
         if form_data and form_data.get("message_id"):
             try:
-                guild_id = form_data.get("guild_id")
+                guild_id = self.database_manager.get_first_guild_id()
+                if not guild_id:
+                    guild_id = self.database_manager.get_first_guild_id()
+                    if not guild_id:
+                        logging.error("Guild ID not found in forms or configs.")
+                        return
                 channel_id = self.database_manager.get_decision_channel_id(guild_id)
                 if not channel_id:
                     logging.error(f"Decision channel ID not found for guild {guild_id}")
                     return
-                
                 channel = self.client.get_channel(channel_id)
                 message = await channel.fetch_message(form_data["message_id"])
                 embed = message.embeds[0]
@@ -109,8 +113,7 @@ class DiscordBot(commands.Bot):
                 embed.color = discord.Color(FORM_STATUSES[status].color)
 
                 await message.edit(embed=embed, view=None)
-                self.database_manager.discord_embeds.delete_one({"message_id": embed_data["message_id"]})
-
+                self.database_manager.discord_embeds.delete_one({"message_id": form_data["message_id"]})
 
                 if form.get("discord_user_id"):
                     from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
