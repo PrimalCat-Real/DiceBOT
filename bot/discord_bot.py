@@ -78,11 +78,17 @@ class DiscordBot(commands.Bot):
             await asyncio.sleep(60)
 
     async def update_embed_status(self, form, status):
-        embed_data = self.database_manager.discord_embeds.find_one({"mc_username": form["mc_username"]})
-        if embed_data and embed_data.get("message_id"):
+        form_data = self.database_manager.forms.find_one({"mc_username": form["mc_username"]})
+        if form_data and form_data.get("message_id"):
             try:
-                channel = self.client.get_channel(embed_data["channel_id"])
-                message = await channel.fetch_message(embed_data["message_id"])
+                guild_id = form_data.get("guild_id")
+                channel_id = self.database_manager.get_decision_channel_id(guild_id)
+                if not channel_id:
+                    logging.error(f"Decision channel ID not found for guild {guild_id}")
+                    return
+                
+                channel = self.client.get_channel(channel_id)
+                message = await channel.fetch_message(form_data["message_id"])
                 embed = message.embeds[0]
 
                 embed.set_field_at(embed.fields.index(next(field for field in embed.fields if field.name == "Статус")), name="Статус", value=FORM_STATUSES[status].name)
