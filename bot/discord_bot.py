@@ -45,34 +45,31 @@ class DiscordBot(commands.Bot):
 
     async def check_pending_forms(self, db_manager: DatabaseManager):
         while True:
-            try:
-                pending_forms = db_manager.forms.find({"status": "pending"})
-                for form in pending_forms:
-                    submission_time = datetime.strptime(form["submission_time"], "%Y-%m-%d %H:%M:%S")
-                    if datetime.now() - submission_time > timedelta(minutes=1):
-                        rp_story = form["rp_story"]
-                        from utils import send_api_request
-                        gemini_response = send_api_request(rp_story)
-                        if gemini_response is not None:  # Проверка на None перед обработкой
-                            if gemini_response:  # True = approved
-                                # db_manager.forms.update_one({"mc_username": form["mc_username"]}, {"$set": {"status": "approved"}})
-                                logging.info(f"Form {form['mc_username']} automatically approved by AI.")
-                                discord_id = int(form["discord_user_id"])
-                                # from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
-                                # await FormStatusEmbedManager.send_status_embed(client, db_manager, discord_id, form["mc_username"])
+            
+            pending_forms = db_manager.forms.find({"status": "pending"})
+            for form in pending_forms:
+                submission_time = datetime.strptime(form["submission_time"], "%Y-%m-%d %H:%M:%S")
+                if datetime.now() - submission_time > timedelta(minutes=1):
+                    rp_story = form["rp_story"]
+                    from utils import send_api_request
+                    gemini_response = send_api_request(rp_story)
+                    if gemini_response is not None:  # Проверка на None перед обработкой
+                        if gemini_response:  # True = approved
+                            # db_manager.forms.update_one({"mc_username": form["mc_username"]}, {"$set": {"status": "approved"}})
+                            logging.info(f"Form {form['mc_username']} automatically approved by AI.")
+                            discord_id = int(form["discord_user_id"])
+                            # from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
+                            # await FormStatusEmbedManager.send_status_embed(client, db_manager, discord_id, form["mc_username"])
 
-                            else:  # False = rejected
-                                # db_manager.forms.update_one({"mc_username": form["mc_username"]}, {"$set": {"status": "rejected"}})
-                                logging.info(f"Form {form['mc_username']} automatically rejected by AI.")
-                                discord_id = int(form["discord_user_id"])
-                                # from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
-                                # await FormStatusEmbedManager.send_status_embed(client, db_manager, discord_id, form["mc_username"])
-                        else:
-                            logging.error(f"Gemini response was None for {form['mc_username']}.")
-                            continue
-
-            except Exception as e:
-                logging.error(f"Error checking pending forms: {e}")
+                        else:  # False = rejected
+                            # db_manager.forms.update_one({"mc_username": form["mc_username"]}, {"$set": {"status": "rejected"}})
+                            logging.info(f"Form {form['mc_username']} automatically rejected by AI.")
+                            discord_id = int(form["discord_user_id"])
+                            # from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
+                            # await FormStatusEmbedManager.send_status_embed(client, db_manager, discord_id, form["mc_username"])
+                    else:
+                        logging.error(f"Gemini response was None for {form['mc_username']}.")
+                        continue
 
             await asyncio.sleep(60)  # Проверяем каждые 10 минут
 

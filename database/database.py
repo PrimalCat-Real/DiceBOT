@@ -22,7 +22,7 @@ class DatabaseManager:
     
 
     def check_form_duplicate(self, mc_username):
-        existing_form = self.forms.find_one({"mc_username": mc_username, "status": {"$in": ["В ожидании", "Одобрено"]}})
+        existing_form = self.forms.find_one({"mc_username": mc_username, "status": {"$in": ["pending", "approved"]} })
         return existing_form is not None
     
     def save_discord_message(self, message_id, channel_id, guild_id, button_types: list[str]):

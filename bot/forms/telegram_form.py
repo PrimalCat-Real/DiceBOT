@@ -49,11 +49,14 @@ class TelegramForm:
 
         existing_user = self.db_manager.users.find_one({"telegram_id": user_id})
 
+        if not existing_user and mc_username:  # Если пользователь не найден по Telegram ID, ищем по Minecraft нику
+            existing_user = self.db_manager.users.find_one({"mc_username": mc_username})
+
         if existing_user:
             # Пользователь найден, обновляем только отсутствующие поля
             update_data = {k: v for k, v in user_data.items() if k not in existing_user}
             if update_data:
-                self.db_manager.users.update_one({"telegram_id": user_id}, {"$set": update_data})
+                self.db_manager.users.update_one({"_id": existing_user["_id"]}, {"$set": update_data})  # Используем _id для обновления
         else:
             # Пользователь не найден, создаем нового
             self.db_manager.users.insert_one(user_data)
