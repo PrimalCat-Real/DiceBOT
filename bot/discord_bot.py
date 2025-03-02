@@ -9,6 +9,7 @@ from bot.discord_commands import CommandManager
 from bot.embed_manager import EmbedManager
 
 
+
 from database.database import DatabaseManager
 import logging
 
@@ -114,6 +115,29 @@ class DiscordBot(commands.Bot):
                 embed.color = discord.Color(FORM_STATUSES[status].color)
 
                 await message.edit(embed=embed, view=None)
+
+                if form.get("discord_user_id"):
+                    from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
+                    await FormStatusEmbedManager.send_status_embed(self.client, self.database_manager, int(form["discord_user_id"]), form["mc_username"])
+
+                    # Выдача роли при одобрении
+                    if status == "approved":
+                        user_id = int(form["discord_user_id"])
+                        user = self.client.get_guild(guild_id).get_member(user_id)
+                        if user:
+                            from config import PLAYER_ROLE_ID
+                            role = self.client.get_guild(guild_id).get_role(PLAYER_ROLE_ID)
+                            if role and role not in user.roles:
+                                try:
+                                    await user.add_roles(role)
+                                    logging.info(f"Role {role.name} added to {user.name}.")
+                                except discord.Forbidden:
+                                    logging.error(f"Bot does not have permission to add role {role.name}.")
+                                except discord.HTTPException as e:
+                                    logging.error(f"Failed to add role {role.name} to {user.name}: {e}")
+                        else:
+                            logging.warning(f"User with ID {user_id} not found in guild.")
+
                 self.database_manager.discord_embeds.delete_one({"message_id": form_data["message_id"]})
 
                 if form.get("discord_user_id"):
