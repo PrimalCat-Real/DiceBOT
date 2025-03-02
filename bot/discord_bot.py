@@ -78,6 +78,7 @@ class DiscordBot(commands.Bot):
             await asyncio.sleep(60)
 
     async def update_embed_status(self, form, status):
+        from config import FORM_STATUSES
         form_data = self.database_manager.forms.find_one({"mc_username": form["mc_username"]})
         if form_data and form_data.get("message_id"):
             try:
@@ -108,7 +109,7 @@ class DiscordBot(commands.Bot):
 
                 
 
-                from config import FORM_STATUSES
+                
                 # Обновление цвета
                 embed.color = discord.Color(FORM_STATUSES[status].color)
 
