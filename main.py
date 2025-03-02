@@ -17,6 +17,9 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 RCON_PORT = os.getenv("RCON_PORT")
 RCON_HOST = os.getenv("RCON_HOST")
 RCON_PASSWORD = os.getenv("RCON_PASSWORD")
+GEMINI_KEY = os.getenv("GEMINI_KEY")
+
+
 
 connection_string = os.getenv("MONGODB")
 
