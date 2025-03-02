@@ -5,7 +5,7 @@ from mcrcon import MCRcon
 import requests
 
 from main import RCON_HOST, RCON_PASSWORD, RCON_PORT, GEMINI_KEY
-
+API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_KEY}"
 async def add_to_whitelist(mc_username: str) -> bool:
     try:
         rcon_port = int(RCON_PORT)
@@ -19,7 +19,7 @@ async def add_to_whitelist(mc_username: str) -> bool:
         return False
     
 
-API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_KEY}"
+
 
 def send_api_request(prompt: str) -> str:
     from_prompt = "I gave you rp story that user write in our form for minecraft rp server, named DiceRP(Дайс), you must response true or false (nothic else, just word true or false), true when story is acceptable and false if not. Acceptable story mean character in story must be imagine, acceptable story that tells how character describe characteristics of self, also acceptable some joke story. Not acceptable just stupid, bad spelling, story about real player, not enough describe person, Story looks like created in 5 second, flat not interest 'Meta-references' or 'authorial asides' are not allowed, Pay attention to the character's description. Stories lacking in detail about the character's personality, background, or physical appearance should be less accaptable. work with this: " + prompt

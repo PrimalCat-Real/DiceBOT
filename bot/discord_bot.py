@@ -10,7 +10,7 @@ from bot.embed_manager import EmbedManager
 from database.database import DatabaseManager
 import logging
 
-from utils import send_api_request
+
 
 
 
@@ -51,6 +51,7 @@ class DiscordBot(commands.Bot):
                     submission_time = datetime.strptime(form["submission_time"], "%Y-%m-%d %H:%M:%S")
                     if datetime.now() - submission_time > timedelta(minutes=1):
                         rp_story = form["rp_story"]
+                        from utils import send_api_request
                         gemini_response = send_api_request(rp_story)
                         if gemini_response is not None:  # Проверка на None перед обработкой
                             if gemini_response:  # True = approved
