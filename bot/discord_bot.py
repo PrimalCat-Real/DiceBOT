@@ -104,10 +104,18 @@ class DiscordBot(commands.Bot):
                     embed.add_field(name="Одобрено", value="AI", inline=False)
                     embed.add_field(name="Время одобрения", value=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), inline=False)
                     embed.add_field(name="Причина", value="Автоматическое одобрение Искусственным Интеллектом", inline=False)
+                    self.database_manager.forms.update_one(
+                        {"mc_username": form["mc_username"]},
+                        {"$set": {"reason": "Автоматическое одобрение Искусственным Интеллектом"}}
+                    )
                 else:
                     embed.add_field(name="Отклонено", value="AI", inline=False)
                     embed.add_field(name="Время отклонения", value=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), inline=False)
                     embed.add_field(name="Причина", value="Автоматический отказ Искусственным Интеллектом", inline=False)
+                    self.database_manager.forms.update_one(
+                        {"mc_username": form["mc_username"]},
+                        {"$set": {"reason": "Автоматический отказ Искусственным Интеллектом"}}
+                    )
 
                 
 
