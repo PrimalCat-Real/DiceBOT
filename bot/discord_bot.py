@@ -118,25 +118,18 @@ class DiscordBot(commands.Bot):
                         {"$set": {"reason": "Автоматический отказ Искусственным Интеллектом", "approved_by": "AI"}}
                     )
 
-                
-
-                
                 # Обновление цвета
                 embed.color = discord.Color(FORM_STATUSES[status].color)
 
                 await message.edit(embed=embed, view=None)
 
                 if form.get("discord_user_id"):
-                    # from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
-                    # await FormStatusEmbedManager.send_status_embed(self.client, self.database_manager, int(form["discord_user_id"]), form["mc_username"])
-
-         
                     if status == "approved":
                         from utils import add_to_whitelist
-                        if await add_to_whitelist(self.form_data["mc_username"]):
-                            logging.info(f"{self.form_data['mc_username']} added to whitelist.")
+                        if await add_to_whitelist(form["mc_username"]):
+                            logging.info(f"{form['mc_username']} added to whitelist.")
                         user_id = form["discord_user_id"]
-                        role = self.client.get_guild(guild_id).get_role(PLAYER_ROLE_ID) # Corrected line
+                        role = self.client.get_guild(guild_id).get_role(PLAYER_ROLE_ID) # Исправленная строка
                         user = self.client.get_guild(guild_id).get_member(user_id)
                         if user and role and role not in user.roles:
                             await user.add_roles(role)
@@ -149,7 +142,7 @@ class DiscordBot(commands.Bot):
                 elif form.get("telegram_user_id"):
                     from bot.forms.pedding_from_embed import TelegramFormStatusEmbedManager
                     await TelegramFormStatusEmbedManager.send_status_message(self.client.tg_bot.bot, self.database_manager, int(form["telegram_user_id"]), form["mc_username"])
-            
+
             except (discord.NotFound, discord.HTTPException) as e:
                 logging.error(f"Failed to update embed for {form['mc_username']}: {e}")
                 
