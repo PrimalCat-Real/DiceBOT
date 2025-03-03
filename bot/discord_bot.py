@@ -132,6 +132,9 @@ class DiscordBot(commands.Bot):
 
          
                     if status == "approved":
+                        from utils import add_to_whitelist
+                        if await add_to_whitelist(self.form_data["mc_username"]):
+                            logging.info(f"{self.form_data['mc_username']} added to whitelist.")
                         user_id = form["discord_user_id"]
                         role = self.client.get_guild(guild_id).get_role(PLAYER_ROLE_ID) # Corrected line
                         user = self.client.get_guild(guild_id).get_member(user_id)
