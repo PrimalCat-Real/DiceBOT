@@ -53,7 +53,7 @@ class DiscordBot(commands.Bot):
             pending_forms = db_manager.forms.find({"status": "pending"})
             for form in pending_forms:
                 submission_time = datetime.strptime(form["submission_time"], "%Y-%m-%d %H:%M:%S")
-                if datetime.now() - submission_time > timedelta(minutes=15):
+                if datetime.now() - submission_time > timedelta(minutes=10):
                     rp_story = form["rp_story"]
                     from utils import send_api_request
                     gemini_response = send_api_request(rp_story)
@@ -78,7 +78,7 @@ class DiscordBot(commands.Bot):
                         logging.error(f"Gemini response was None for {form['mc_username']}.")
                         continue
 
-            await asyncio.sleep(900)
+            await asyncio.sleep(700)
 
     async def update_embed_status(self, form, status):
         from config import FORM_STATUSES
