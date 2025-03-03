@@ -10,6 +10,7 @@ from bot.embed_manager import EmbedManager
 
 
 
+from config import PLAYER_ROLE_ID
 from database.database import DatabaseManager
 import logging
 
@@ -132,18 +133,26 @@ class DiscordBot(commands.Bot):
                     # Выдача роли при одобрении
                     if status == "approved":
                         user_id = int(form["discord_user_id"])
-                        user = self.client.get_guild(guild_id).get_member(user_id)
-                        if user:
-                            from config import PLAYER_ROLE_ID
-                            role = self.client.get_guild(guild_id).get_role(PLAYER_ROLE_ID)
-                            if role and role not in user.roles:
-                                try:
-                                    await user.add_roles(role)
-                                    logging.info(f"Role {role.name} added to {user.name}.")
-                                except discord.Forbidden:
-                                    logging.error(f"Bot does not have permission to add role {role.name}.")
-                                except discord.HTTPException as e:
-                                    logging.error(f"Failed to add role {role.name} to {user.name}: {e}")
+       
+                        guild = self.client.get_guild(guild_id)  # Получаем объект гильдии
+                        if guild:
+                            try:
+                                user = await guild.fetch_member(user_id) #пытаемся получить юзера с гильдии
+                                if user:
+                                    role = guild.get_role(PLAYER_ROLE_ID)
+                                    if role and role not in user.roles:
+                                        try:
+                                            await user.add_roles(role)
+                                            logging.info(f"Role {role.name} added to {user.name} in guild {guild_id}.") # Добавлено guild_id
+                                        except discord.Forbidden:
+                                            logging.error(f"Bot does not have permission to add role {role.name} in guild {guild_id}.") # Добавлено guild_id
+                                        except discord.HTTPException as e:
+                                            logging.error(f"Failed to add role {role.name} to {user.name} in guild {guild_id}: {e}.") # Добавлено guild_id
+                                else:
+                                    logging.warning(f"User with ID {user_id} not found in guild {guild_id}.") # Добавлено guild_id
+                            except discord.NotFound:
+                                logging.warning(f"User with ID {user_id} not found in guild {guild_id}.") # Добавлено guild_id
+
                         else:
                             logging.warning(f"User with ID {user_id} not found in guild.")
 

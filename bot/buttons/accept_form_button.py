@@ -46,6 +46,7 @@ class AcceptFormButton(discord.ui.Button):
                     user = interaction.guild.get_member(int(user_id))
                     if user:
                         role = interaction.guild.get_role(PLAYER_ROLE_ID)
+                        logging.info(f"{interaction.guild.id}")
                         if role and role not in user.roles:
                             try:
                                 await user.add_roles(role)
@@ -56,7 +57,24 @@ class AcceptFormButton(discord.ui.Button):
                                 logging.error(f"Failed to add role {role.name} to {user.name}: {e}")
                     else:
                         logging.warning(f"User with ID {user_id} not found in guild.")
-
+                # guild = self.client.get_guild(guild_id)  # Получаем объект гильдии
+                # if guild:
+                #     try:
+                #         user = await guild.fetch_member(user_id) #пытаемся получить юзера с гильдии
+                #         if user:
+                #             role = guild.get_role(PLAYER_ROLE_ID)
+                #             if role and role not in user.roles:
+                #                 try:
+                #                     await user.add_roles(role)
+                #                     logging.info(f"Role {role.name} added to {user.name} in guild {guild_id}.") # Добавлено guild_id
+                #                 except discord.Forbidden:
+                #                     logging.error(f"Bot does not have permission to add role {role.name} in guild {guild_id}.") # Добавлено guild_id
+                #                 except discord.HTTPException as e:
+                #                     logging.error(f"Failed to add role {role.name} to {user.name} in guild {guild_id}: {e}.") # Добавлено guild_id
+                #         else:
+                #             logging.warning(f"User with ID {user_id} not found in guild {guild_id}.") # Добавлено guild_id
+                #     except discord.NotFound:
+                #         logging.warning(f"User with ID {user_id} not found in guild {guild_id}.") # Добавлено guild_id
 
                 await interaction.response.edit_message(embed=embed, view=None)
                 self.db_manager.discord_embeds.delete_one({"message_id": interaction.message.id})
