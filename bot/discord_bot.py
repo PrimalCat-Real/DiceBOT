@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime, timedelta
+import random
 # from datetime import datetime, timedelta
 import discord
 from discord.ext import commands
@@ -126,6 +127,7 @@ class DiscordBot(commands.Bot):
                     from utils import add_to_whitelist
                     if await add_to_whitelist(form["mc_username"]):
                         logging.info(f"{form['mc_username']} added to whitelist.")
+                    await self.send_approved_embed(guild_id, form_data) 
                 if form.get("discord_user_id"):
                     if status == "approved":
                         user_id = form["discord_user_id"]
@@ -142,10 +144,28 @@ class DiscordBot(commands.Bot):
                 elif form.get("telegram_user_id"):
                     from bot.forms.pedding_from_embed import TelegramFormStatusEmbedManager
                     await TelegramFormStatusEmbedManager.send_status_message(self.client.tg_bot.bot, self.database_manager, int(form["telegram_user_id"]), form["mc_username"])
-
+                
             except (discord.NotFound, discord.HTTPException) as e:
                 logging.error(f"Failed to update embed for {form['mc_username']}: {e}")
-                
+
+    async def send_approved_embed(self, guild_id, form_data):
+        channel_id = self.database_manager.get_approved_channel_id(guild_id)
+        if channel_id:
+            channel = self.client.get_channel(channel_id)
+            if channel:
+                embed = discord.Embed(
+                    title="Анкета принята:",
+                    description=form_data["rp_story"],
+                    color=discord.Color.from_rgb(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                )
+                embed.set_author(name=form_data.get("discord_name") or form_data.get("telegram_name"),
+                                    icon_url=form_data.get("discord_avatar") or "https://cdn.pixabay.com/photo/2021/12/27/10/50/telegram-6896827_1280.png")
+                await channel.send(embed=embed)
+            else:
+                logging.error(f"Channel with ID {channel_id} not found.")
+        else:
+            logging.error(f"Approved channel ID not set for guild {guild_id}.")
+                    
     def close(self):
         loop = asyncio.get_running_loop()
         try:
