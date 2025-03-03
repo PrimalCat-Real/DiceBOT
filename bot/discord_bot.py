@@ -130,14 +130,13 @@ class DiscordBot(commands.Bot):
                     # from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
                     # await FormStatusEmbedManager.send_status_embed(self.client, self.database_manager, int(form["discord_user_id"]), form["mc_username"])
 
-                    # Выдача роли при одобрении
+         
                     if status == "approved":
                         user_id = form["discord_user_id"]
-                        role = self.client.get_guild(guild_id).guild.get_role(PLAYER_ROLE_ID)
-                        user = self.client.get_guild(guild_id).guild.get_member(user_id)
+                        role = self.client.get_guild(guild_id).get_role(PLAYER_ROLE_ID) # Corrected line
+                        user = self.client.get_guild(guild_id).get_member(user_id)
                         if user and role and role not in user.roles:
                             await user.add_roles(role)
-                
 
                 self.database_manager.discord_embeds.delete_one({"message_id": form_data["message_id"]})
 
