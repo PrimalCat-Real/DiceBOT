@@ -43,18 +43,23 @@ class AcceptFormButton(discord.ui.Button):
 
                 user_id = self.form_data.get("discord_user_id") or self.form_data.get("telegram_user_id")
                 if user_id and self.form_data.get("discord_user_id"):
+                    # user = interaction.guild.get_member()
                     user = interaction.guild.get_member(int(user_id))
-                    if user:
-                        role = interaction.guild.get_role(PLAYER_ROLE_ID)
-                        logging.info(f"{interaction.guild.id}")
-                        if role and role not in user.roles:
-                            try:
-                                await user.add_roles(role)
-                                logging.info(f"Role {role.name} added to {user.name}.")
-                            except discord.Forbidden:
-                                logging.error(f"Bot does not have permission to add role {role.name}.")
-                            except discord.HTTPException as e:
-                                logging.error(f"Failed to add role {role.name} to {user.name}: {e}")
+                    print(user)
+                    role = interaction.guild.get_role(PLAYER_ROLE_ID)
+                    if user and role and role not in user.roles:
+                        await user.add_roles(role)
+                    # if user:
+                    #     role = interaction.guild.get_role(PLAYER_ROLE_ID)
+                    #     logging.info(f"{interaction.guild.id}")
+                    #     if role and role not in user.roles:
+                    #         try:
+                    #             await user.add_roles(role)
+                    #             logging.info(f"Role {role.name} added to {user.name}.")
+                    #         except discord.Forbidden:
+                    #             logging.error(f"Bot does not have permission to add role {role.name}.")
+                    #         except discord.HTTPException as e:
+                    #             logging.error(f"Failed to add role {role.name} to {user.name}: {e}")
                     else:
                         logging.warning(f"User with ID {user_id} not found in guild.")
                 # guild = self.client.get_guild(guild_id)  # Получаем объект гильдии
