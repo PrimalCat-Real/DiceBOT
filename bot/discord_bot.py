@@ -122,12 +122,12 @@ class DiscordBot(commands.Bot):
                 embed.color = discord.Color(FORM_STATUSES[status].color)
 
                 await message.edit(embed=embed, view=None)
-
+                if status == "approved":
+                    from utils import add_to_whitelist
+                    if await add_to_whitelist(form["mc_username"]):
+                        logging.info(f"{form['mc_username']} added to whitelist.")
                 if form.get("discord_user_id"):
                     if status == "approved":
-                        from utils import add_to_whitelist
-                        if await add_to_whitelist(form["mc_username"]):
-                            logging.info(f"{form['mc_username']} added to whitelist.")
                         user_id = form["discord_user_id"]
                         role = self.client.get_guild(guild_id).get_role(PLAYER_ROLE_ID) # Исправленная строка
                         user = self.client.get_guild(guild_id).get_member(user_id)
@@ -135,7 +135,7 @@ class DiscordBot(commands.Bot):
                             await user.add_roles(role)
 
                 self.database_manager.discord_embeds.delete_one({"message_id": form_data["message_id"]})
-
+            
                 if form.get("discord_user_id"):
                     from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
                     await FormStatusEmbedManager.send_status_embed(self.client, self.database_manager, int(form["discord_user_id"]), form["mc_username"])
