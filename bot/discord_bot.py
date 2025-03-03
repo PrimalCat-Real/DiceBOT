@@ -127,34 +127,17 @@ class DiscordBot(commands.Bot):
                 await message.edit(embed=embed, view=None)
 
                 if form.get("discord_user_id"):
-                    from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
-                    await FormStatusEmbedManager.send_status_embed(self.client, self.database_manager, int(form["discord_user_id"]), form["mc_username"])
+                    # from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
+                    # await FormStatusEmbedManager.send_status_embed(self.client, self.database_manager, int(form["discord_user_id"]), form["mc_username"])
 
                     # Выдача роли при одобрении
                     if status == "approved":
-                        user_id = int(form["discord_user_id"])
-       
-                        guild = self.client.get_guild(guild_id)  # Получаем объект гильдии
-                        if guild:
-                            try:
-                                user = await guild.fetch_member(user_id) #пытаемся получить юзера с гильдии
-                                if user:
-                                    role = guild.get_role(PLAYER_ROLE_ID)
-                                    if role and role not in user.roles:
-                                        try:
-                                            await user.add_roles(role)
-                                            logging.info(f"Role {role.name} added to {user.name} in guild {guild_id}.") # Добавлено guild_id
-                                        except discord.Forbidden:
-                                            logging.error(f"Bot does not have permission to add role {role.name} in guild {guild_id}.") # Добавлено guild_id
-                                        except discord.HTTPException as e:
-                                            logging.error(f"Failed to add role {role.name} to {user.name} in guild {guild_id}: {e}.") # Добавлено guild_id
-                                else:
-                                    logging.warning(f"User with ID {user_id} not found in guild {guild_id}.") # Добавлено guild_id
-                            except discord.NotFound:
-                                logging.warning(f"User with ID {user_id} not found in guild {guild_id}.") # Добавлено guild_id
-
-                        else:
-                            logging.warning(f"User with ID {user_id} not found in guild.")
+                        user_id = form["discord_user_id"]
+                        role = self.client.get_guild(guild_id).guild.get_role(PLAYER_ROLE_ID)
+                        user = self.client.get_guild(guild_id).guild.get_member(user_id)
+                        if user and role and role not in user.roles:
+                            await user.add_roles(role)
+                
 
                 self.database_manager.discord_embeds.delete_one({"message_id": form_data["message_id"]})
 
