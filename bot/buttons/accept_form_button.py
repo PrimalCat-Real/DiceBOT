@@ -47,8 +47,8 @@ class AcceptFormButton(discord.ui.Button):
                     user = interaction.guild.get_member(self.form_data.get("discord_user_id"))
                     print(user)
                     role = interaction.guild.get_role(PLAYER_ROLE_ID)
-                    if user and role and role not in user.roles:
-                        await user.add_roles(role)
+                    if user and role:
+                       await user.add_roles(role)
                     # if user:
                     #     role = interaction.guild.get_role(PLAYER_ROLE_ID)
                     #     logging.info(f"{interaction.guild.id}")
