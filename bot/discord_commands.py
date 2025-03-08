@@ -58,8 +58,10 @@ class CommandManager:
         button = FillFormButton(self.db_manager)
 
         discord_link_button = ui.Button(style=ButtonStyle.link, url="https://drive.google.com/file/d/15G-zZevRi3co09n1YERWwd0wvA1vRYOx/view?usp=sharing", label="Скачать Лаунчер")
-        view = EmbedManager.create_view([button, discord_link_button])
-        button_types = ['FillFormButton', 'discord.ui.Button.link']
+        how_to_fill_form_button = ui.Button(style=ButtonStyle.link, url="https://discord.com/channels/1294073178116849694/1347217887726932018", label="Как заполнить анкету?")
+
+        view = EmbedManager.create_view([button, discord_link_button, how_to_fill_form_button])
+        button_types = ['FillFormButton', 'discord.ui.Button.link', 'discord.ui.Button.link']
         message = await EmbedManager.send_embed_with_view(interaction.channel, embed, view, button_types, self.db_manager)
     
     async def set_decision_channel(self, interaction: Interaction):
