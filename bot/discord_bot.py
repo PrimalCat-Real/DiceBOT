@@ -127,41 +127,39 @@ class DiscordBot(commands.Bot):
                     from utils import add_to_whitelist
                     if await add_to_whitelist(form["mc_username"]):
                         logging.info(f"{form['mc_username']} added to whitelist.")
-                    await self.send_approved_embed(guild_id, form_data) 
+                    await self.send_approved_embed(guild_id, form_data)
                 if form.get("discord_user_id"):
                     if status == "approved":
-                         guild = self.client.get_guild(guild_id)
-                    if not guild:
-                        logging.error(f"Гильдия {guild_id} не найдена")
-                        return
-                    
-                    role = guild.get_role(PLAYER_ROLE_ID)
-                    if not role:
-                        logging.error(f"Роль {PLAYER_ROLE_ID} не найдена")
-                        return
-                    
-                    user_id = int(form["discord_user_id"])  # Убедись, что user_id - это число
-                    user = guild.get_member(user_id)
-                    if not user:
-                        logging.error(f"Пользователь {user_id} не найден в гильдии")
-                        return
-                    
-                    
-                    await user.add_roles(role)
-                    logging.info(f"Добавлена роль {role.name} пользователю {user.name}")
+                        if guild_id:
+                            guild = self.client.get_guild(guild_id)
+                            if guild:
+                                role = guild.get_role(PLAYER_ROLE_ID)
+                                if role:
+                                    user_id = int(form["discord_user_id"])
+                                    user = guild.get_member(user_id)
+                                    if user:
+                                        await user.add_roles(role)
+                                        logging.info(f"Добавлена роль {role.name} пользователю {user.name}")
+                                    else:
+                                        logging.error(f"Пользователь {user_id} не найден в гильдии")
+                                else:
+                                    logging.error(f"Роль {PLAYER_ROLE_ID} не найдена")
+                            else:
+                                logging.error(f"Гильдия {guild_id} не найдена")
+                        else:
+                            logging.error("Guild_id was not found.")
 
                 self.database_manager.discord_embeds.delete_one({"message_id": form_data["message_id"]})
-            
+
                 if form.get("discord_user_id"):
                     from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
                     await FormStatusEmbedManager.send_status_embed(self.client, self.database_manager, int(form["discord_user_id"]), form["mc_username"])
                 elif form.get("telegram_user_id"):
                     from bot.forms.pedding_from_embed import TelegramFormStatusEmbedManager
                     await TelegramFormStatusEmbedManager.send_status_message(self.client.tg_bot.bot, self.database_manager, int(form["telegram_user_id"]), form["mc_username"])
-                
+
             except (discord.NotFound, discord.HTTPException) as e:
                 logging.error(f"Failed to update embed for {form['mc_username']}: {e}")
-
     async def send_approved_embed(self, guild_id, form_data):
         channel_id = self.database_manager.get_approved_channel_id(guild_id)
         if channel_id:

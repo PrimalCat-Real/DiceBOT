@@ -20,14 +20,11 @@ def is_admin(interaction: discord.Interaction) -> bool:
     :param interaction: Объект Interaction из discord.py.
     :return: True, если пользователь администратор, иначе False.
     """
-    # Получаем роли пользователя
-    user_roles = interaction.user.roles
-
-    # Проверяем, есть ли у пользователя хотя бы одна административная роль
-    for role in user_roles:
-        if role.id in admin_roles:
-            return True
-    return False
+    if isinstance(interaction.user, discord.Member):
+        user_roles = interaction.user.roles
+        return any(role.id in admin_roles for role in user_roles)
+    else:
+        return False
 
 def is_moderator(interaction: discord.Interaction) -> bool:
     """
@@ -35,14 +32,11 @@ def is_moderator(interaction: discord.Interaction) -> bool:
     :param interaction: Объект Interaction из discord.py.
     :return: True, если пользователь модератор, иначе False.
     """
-    # Получаем роли пользователя
-    user_roles = interaction.user.roles
-
-    # Проверяем, есть ли у пользователя хотя бы одна модераторская или административная роль
-    for role in user_roles:
-        if role.id in moder_roles or role.id in admin_roles:
-            return True
-    return False
+    if isinstance(interaction.user, discord.Member):
+        user_roles = interaction.user.roles
+        return any(role.id in moder_roles or role.id in admin_roles for role in user_roles)
+    else:
+        return False
 
 
 FORM_FIELDS = [
