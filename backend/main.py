@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException
+import logging
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 import subprocess
 import os
@@ -19,6 +20,40 @@ users_collection = db["users"]  # Предполагается, что колл�
 class ConnectionRequest(BaseModel):
     username: str
     ip: str
+
+@app.post("/api/payment/easydonate/handler")
+async def handle_payment(request: Request):
+    data = await request.json()
+    logging.info(f"Получен callback с данными: {data}")
+
+    customer = data.get("customer")  # mc_username
+    products = data.get("products", [])
+    tokens_count = sum(product.get("count", 0) for product in products)
+
+    user = users_collection.find_one({"mc_username": customer})
+
+    if user:
+        # Пользователь найден, обновляем количество токенов
+        if "tokens" in user:
+            new_tokens_count = user["tokens"] + tokens_count
+        else:
+            new_tokens_count = tokens_count
+
+        users_collection.update_one(
+            {"mc_username": customer},
+            {"$set": {"tokens": new_tokens_count}}
+        )
+        logging.info(f"Обновлено количество токенов для {customer}: {new_tokens_count}")
+    else:
+        # Пользователь не найден, создаем новую запись
+        users_collection.insert_one({
+            "mc_username": customer,
+            "tokens": tokens_count
+        })
+        logging.info(f"Создана запись для {customer} с {tokens_count} токенами")
+
+    return {"status": "success"}
+
 
 @app.post("/v1/allowConnectByApi")
 async def allow_connection(request: ConnectionRequest):

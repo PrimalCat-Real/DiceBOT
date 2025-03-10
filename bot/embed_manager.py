@@ -1,8 +1,10 @@
 import discord
 import json
 from bot.buttons.accept_form_button import AcceptFormButton
+from bot.buttons.check_tokens_button import CheckTokensButton
 from bot.buttons.decline_form_button import DeclineFormButton
 from bot.buttons.fill_form_button import FillFormButton
+from bot.buttons.token_purchase_button import TokenPurchaseButton
 from database.database import DatabaseManager
 
 class EmbedManager:
@@ -12,7 +14,9 @@ class EmbedManager:
         'FillFormButton': FillFormButton,
         'AcceptFormButton': AcceptFormButton,
         'DeclineFormButton': DeclineFormButton,
-        'discord.ui.Button.link': discord.ui.Button
+        'discord.ui.Button.link': discord.ui.Button,
+        'CheckTokensButton': CheckTokensButton,
+        'TokenPurchaseButton': TokenPurchaseButton
     }
 
     @staticmethod
@@ -62,6 +66,10 @@ class EmbedManager:
                             else:
                                 logger.error(f"Form or user data not found for message {message.id}")
                                 continue
+                        elif button_type_name == 'CheckTokensButton':
+                            button = button_class(db_manager)
+                        elif button_type_name == 'TokenPurchaseButton':
+                            button = button_class()
                         elif button_type_name == 'discord.ui.Button.link':
                             link_button = next((item for item in message.components[0].children if item.url), None)
                             if link_button:

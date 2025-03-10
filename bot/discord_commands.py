@@ -3,7 +3,9 @@ from discord import Button, ButtonStyle, app_commands, Interaction
 from discord import Interaction, ui
 import logging
 
+from bot.buttons.check_tokens_button import CheckTokensButton
 from bot.buttons.fill_form_button import FillFormButton
+from bot.buttons.token_purchase_button import TokenPurchaseButton
 from bot.embed_manager import EmbedManager
 from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
 from config import messages, is_admin
@@ -26,6 +28,7 @@ class CommandManager:
             app_commands.Choice(name="set_decision_channel", value="set_decision_channel"),
             app_commands.Choice(name="set_approved_channel", value="set_approved_channel"),
             app_commands.Choice(name="delete_form", value="delete_form"),
+            app_commands.Choice(name="send_donate_message", value="send_donate_message"),
         ])
         async def discord_command(interaction: Interaction, command: app_commands.Choice[str]):
             if not is_admin(interaction):
@@ -36,6 +39,7 @@ class CommandManager:
                 "send_welcome_message": self.send_welcome_message,
                 "set_decision_channel": self.set_decision_channel,
                 "set_approved_channel": self.set_approved_channel,
+                "send_donate_message": self.send_donate_message,
             }
 
             if command.value in commands:
@@ -77,6 +81,16 @@ class CommandManager:
         self.db_manager.set_approved_channel_id(guild_id, channel_id)
         await interaction.response.send_message(f"ID канала для одобрения ({interaction.channel.name} - {channel_id}) успешно сохранён.", ephemeral=True)
         self.logger.info(f"Approved channel ID {channel_id} has been saved.")
+
+    async def send_donate_message(self, interaction: Interaction):
+        embed = messages["donate_embed"]
+        # easydonate_button = ui.Button(style=ButtonStyle.link, url="YOUR_EASYDONATE_LINK", label="Поддержать через EasyDonate")
+        check_tokens_button = CheckTokensButton(self.db_manager)
+        token_purchase_button = TokenPurchaseButton()
+        view = EmbedManager.create_view([check_tokens_button, token_purchase_button])
+        button_types = ['CheckTokensButton' 'TokenPurchaseButton']
+        await EmbedManager.send_embed_with_view(interaction.channel, embed, view, button_types, self.db_manager)
+        await interaction.response.send_message("Сообщение с донатом отправлено!", ephemeral=True)
 
     async def delete_form(self, interaction: Interaction):
         class DeleteFormModal(discord.ui.Modal, title="Удаление анкеты"):

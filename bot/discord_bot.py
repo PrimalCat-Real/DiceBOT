@@ -132,23 +132,23 @@ class DiscordBot(commands.Bot):
                     if status == "approved":
                          guild = self.client.get_guild(guild_id)
                     if not guild:
-                        print(f"Гильдия {guild_id} не найдена")
+                        logging.error(f"Гильдия {guild_id} не найдена")
                         return
                     
                     role = guild.get_role(PLAYER_ROLE_ID)
                     if not role:
-                        print(f"Роль {PLAYER_ROLE_ID} не найдена")
+                        logging.error(f"Роль {PLAYER_ROLE_ID} не найдена")
                         return
                     
                     user_id = int(form["discord_user_id"])  # Убедись, что user_id - это число
                     user = guild.get_member(user_id)
                     if not user:
-                        print(f"Пользователь {user_id} не найден в гильдии")
+                        logging.error(f"Пользователь {user_id} не найден в гильдии")
                         return
                     
                     
                     await user.add_roles(role)
-                    print(f"Добавлена роль {role.name} пользователю {user.name}")
+                    logging.info(f"Добавлена роль {role.name} пользователю {user.name}")
 
                 self.database_manager.discord_embeds.delete_one({"message_id": form_data["message_id"]})
             
