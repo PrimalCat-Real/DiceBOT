@@ -1,7 +1,7 @@
 import discord
 from discord import Interaction, ButtonStyle, ui
 import requests
-from config import SERVER_ID, PRODUCT_ID, SHOP_KEY
+
 
 class TokenPurchaseButton(discord.ui.Button):
     def __init__(self):
@@ -25,7 +25,7 @@ class TokenPurchaseModal(ui.Modal, title="Покупка токенов"):
         amount = int(self.amount.value)
         email = self.email.value
         coupon = self.coupon.value
-
+        from main import SERVER_ID, PRODUCT_ID, SHOP_KEY
         server_id = SERVER_ID
         product_id = PRODUCT_ID
         shop_key = SHOP_KEY
