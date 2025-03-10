@@ -18,6 +18,9 @@ RCON_PORT = os.getenv("RCON_PORT")
 RCON_HOST = os.getenv("RCON_HOST")
 RCON_PASSWORD = os.getenv("RCON_PASSWORD")
 GEMINI_KEY = os.getenv("GEMINI_KEY")
+SERVER_ID = int(os.getenv("SERVER_ID", 0))
+PRODUCT_ID = int(os.getenv("PRODUCT_ID", 0))
+SHOP_KEY = os.getenv("SHOP_KEY")
 
 
 
