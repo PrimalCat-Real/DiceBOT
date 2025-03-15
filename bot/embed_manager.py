@@ -6,6 +6,7 @@ from bot.buttons.decline_form_button import DeclineFormButton
 from bot.buttons.fill_form_button import FillFormButton
 from bot.buttons.token_purchase_button import TokenPurchaseButton
 from database.database import DatabaseManager
+from discord import ui
 
 class EmbedManager:
 
@@ -55,7 +56,7 @@ class EmbedManager:
                 view = discord.ui.View(timeout=None)
                 original_buttons = []
                 for component in message.components:
-                    if isinstance(component, discord.ui.ActionRow):
+                    if isinstance(component, ui.ActionRow): # Исправлено
                         for item in component.children:
                             if isinstance(item, discord.ui.Button):
                                 original_buttons.append(item)
