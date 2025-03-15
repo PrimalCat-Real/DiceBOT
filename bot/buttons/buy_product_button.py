@@ -63,9 +63,14 @@ class ConfirmPurchaseButton(ui.Button):
             if purchase_channel_id:
                 purchase_channel = self.db_manager.client.get_channel(purchase_channel_id)
                 if purchase_channel:
+                    mc_username = self.db_manager.get_mc_username_by_discord_id(self.user_id)
+                    description = f"Пользователь {interaction.user.mention}"
+                    if mc_username:
+                        description += f" ({mc_username})"
+                    description += f" купил {self.product['name']} за {self.product['cost']} токенов."
                     embed = Embed(
                         title="Новая покупка!",
-                        description=f"Пользователь {interaction.user.mention} купил {self.product['name']} за {self.product['cost']} токенов.",
+                        description=description,
                         color=discord.Color.green()
                     )
                     embed.set_author(name=interaction.user.name, icon_url=interaction.user.avatar.url if interaction.user.avatar else interaction.user.default_avatar.url)

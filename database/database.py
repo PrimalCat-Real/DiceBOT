@@ -134,6 +134,11 @@ class DatabaseManager:
         if config and "purchase_channel_id" in config:
             return config["purchase_channel_id"]
         return None
+    def get_mc_username_by_discord_id(self, discord_id):
+        user = self.users.find_one({"discord_id": discord_id})
+        if user and "mc_username" in user:
+            return user["mc_username"]
+        return None
 # Пример использования:
 # user_data = db_manager.get_user(12345)
 # db_manager.update_user(12345, {'username': 'NewUsername'})
