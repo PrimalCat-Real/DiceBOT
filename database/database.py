@@ -123,6 +123,9 @@ class DatabaseManager:
     def update_user_tokens(self, discord_id, new_tokens):
         self.users.update_one({"discord_id": discord_id}, {"$set": {"tokens": new_tokens}}, upsert=True)
 
+    def get_user_by_discord_id(self, discord_id):
+        return self.users.find_one({"discord_id": discord_id})
+
 # Пример использования:
 # user_data = db_manager.get_user(12345)
 # db_manager.update_user(12345, {'username': 'NewUsername'})
