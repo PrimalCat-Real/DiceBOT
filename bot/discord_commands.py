@@ -40,6 +40,7 @@ class CommandManager:
                 "send_welcome_message": self.send_welcome_message,
                 "set_decision_channel": self.set_decision_channel,
                 "set_approved_channel": self.set_approved_channel,
+                "set_purchase_channel": self.set_purchase_channel,
                 "send_donate_message": self.send_donate_message,
             }
 
@@ -68,7 +69,14 @@ class CommandManager:
         view = EmbedManager.create_view([button, discord_link_button, how_to_fill_form_button])
         button_types = ['FillFormButton', 'discord.ui.Button.link', 'discord.ui.Button.link']
         message = await EmbedManager.send_embed_with_view(interaction.channel, embed, view, button_types, self.db_manager)
-    
+
+    async def set_purchase_channel(self, interaction: Interaction):
+        channel_id = interaction.channel.id
+        guild_id = interaction.guild.id
+        self.db_manager.set_purchase_channel_id(guild_id, channel_id)
+        await interaction.response.send_message(f"ID канала для уведомлений о покупках ({interaction.channel.name} - {channel_id}) успешно сохранён.", ephemeral=True)
+        self.logger.info(f"Purchase channel ID {channel_id} has been saved.")
+        
     async def set_decision_channel(self, interaction: Interaction):
         channel_id = interaction.channel.id
         guild_id = interaction.guild.id

@@ -1,6 +1,6 @@
 
 import discord
-from discord import ui, ButtonStyle, Interaction
+from discord import Embed, ui, ButtonStyle, Interaction
 
 from bot.forms.discord_form import DiscordForm
 from config import FORM_FIELDS
@@ -51,15 +51,27 @@ class ConfirmPurchaseButton(ui.Button):
         self.user_id = user_id
 
     async def callback(self, interaction: Interaction):
-        await interaction.response.defer(ephemeral=True) # defer the interaction
+        await interaction.response.defer(ephemeral=True)
         user = self.db_manager.get_user_by_discord_id(self.user_id)
         if user and user.get("tokens", 0) >= self.product["cost"]:
             new_tokens = user["tokens"] - self.product["cost"]
             self.db_manager.update_user_tokens(self.user_id, new_tokens)
-            print(f"Покупка {self.product['name']} успешно выполнена для {interaction.user.name}.")
-            await interaction.followup.send("Покупка успешно выполнена!", ephemeral=True) # use followup.send
+            await interaction.followup.send("Покупка успешно выполнена!", ephemeral=True)
+
+            # Отправляем уведомление в канал
+            purchase_channel_id = self.db_manager.get_purchase_channel_id(interaction.guild.id)
+            if purchase_channel_id:
+                purchase_channel = self.db_manager.client.get_channel(purchase_channel_id)
+                if purchase_channel:
+                    embed = Embed(
+                        title="Новая покупка!",
+                        description=f"Пользователь {interaction.user.mention} купил {self.product['name']} за {self.product['cost']} токенов.",
+                        color=discord.Color.green()
+                    )
+                    embed.set_author(name=interaction.user.name, icon_url=interaction.user.avatar.url if interaction.user.avatar else interaction.user.default_avatar.url)
+                    await purchase_channel.send(embed=embed)
         else:
-            await interaction.followup.send("Недостаточно токенов для покупки.", ephemeral=True) # use followup.send
+            await interaction.followup.send("Недостаточно токенов для покупки.", ephemeral=True)
 
 class ConfirmPurchaseView(ui.View):
     def __init__(self, db_manager, product, user_id):

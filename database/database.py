@@ -126,6 +126,14 @@ class DatabaseManager:
     def get_user_by_discord_id(self, discord_id):
         return self.users.find_one({"discord_id": discord_id})
 
+    def set_purchase_channel_id(self, guild_id, channel_id: int):
+        self.configs.update_one({'guild_id': guild_id}, {"$set": {"purchase_channel_id": channel_id}}, upsert=True)
+
+    def get_purchase_channel_id(self, guild_id: int) -> int:
+        config = self.configs.find_one({'guild_id': guild_id})
+        if config and "purchase_channel_id" in config:
+            return config["purchase_channel_id"]
+        return None
 # Пример использования:
 # user_data = db_manager.get_user(12345)
 # db_manager.update_user(12345, {'username': 'NewUsername'})
