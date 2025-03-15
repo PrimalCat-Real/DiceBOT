@@ -12,28 +12,54 @@ class TokenPurchaseButton(discord.ui.Button):
         modal = TokenPurchaseModal()
         await interaction.response.send_modal(modal)
 
+
 class TokenPurchaseModal(ui.Modal, title="Покупка токенов"):
     def __init__(self):
         super().__init__()
-        self.minecraft_nickname = ui.TextInput(label="Никнейм Minecraft", placeholder="Введите ваш никнейм в игре", required=True)
-        self.amount = ui.TextInput(label="Количество токенов", placeholder="Введите количество, которое хотите купить", required=True)
-        self.email = ui.TextInput(label="Email", placeholder="Введите ваш email", required=True)
-        self.coupon = ui.TextInput(label="Купон (необязательно)", placeholder="Введите купон", required=False)
+        # Инициализация полей
+        self.minecraft_nickname = ui.TextInput(
+            label="Никнейм Minecraft",
+            placeholder="Введите ваш никнейм в игре",
+            required=True
+        )
+        self.amount = ui.TextInput(
+            label="Количество токенов",
+            placeholder="Введите количество, которое хотите купить",
+            required=True
+        )
+        self.email = ui.TextInput(
+            label="Email",
+            placeholder="Введите ваш email",
+            required=True
+        )
+        self.coupon = ui.TextInput(
+            label="Купон (необязательно)",
+            placeholder="Введите купон",
+            required=False
+        )
+
+        # Добавляем поля в модальное окно
+        self.add_item(self.minecraft_nickname)
+        self.add_item(self.amount)
+        self.add_item(self.email)
+        self.add_item(self.coupon)
 
     async def on_submit(self, interaction: Interaction):
         nickname = self.minecraft_nickname.value
         amount = int(self.amount.value)
         email = self.email.value
         coupon = self.coupon.value
+
         from main import SERVER_ID, PRODUCT_ID, SHOP_KEY
         server_id = SERVER_ID
         product_id = PRODUCT_ID
         shop_key = SHOP_KEY
 
+        # Формируем параметры запроса
         params = {
             "customer": nickname,
             "server_id": server_id,
-            "products": f'{{"{product_id}": {amount}}}',
+            "products": f'{{"{product_id}": {amount}}}',  # Конвертируем в JSON-строку
             "email": email,
             "success_url": "https://dicerp.easydonate.ru/"
         }
@@ -43,7 +69,11 @@ class TokenPurchaseModal(ui.Modal, title="Покупка токенов"):
         headers = {"Shop-Key": shop_key}
 
         try:
-            response = requests.get("https://easydonate.ru/api/v3/shop/payment/create", headers=headers, params=params)
+            response = requests.get(
+                "https://easydonate.ru/api/v3/shop/payment/create",
+                headers=headers,
+                params=params
+            )
 
             print("Статус ответа:", response.status_code)
             print("Ответ от API:", response.text)
@@ -52,9 +82,18 @@ class TokenPurchaseModal(ui.Modal, title="Покупка токенов"):
 
             if response.status_code == 200 and response_data.get("success"):
                 payment_url = response_data["response"]["url"]
-                await interaction.response.send_message(f"Ссылка для оплаты: {payment_url}", ephemeral=True)
+                await interaction.response.send_message(
+                    f"Ссылка для оплаты: {payment_url}",
+                    ephemeral=True
+                )
             else:
-                await interaction.response.send_message("Ошибка при создании ссылки для оплаты. Попробуйте позже.", ephemeral=True)
+                await interaction.response.send_message(
+                    "Ошибка при создании ссылки для оплаты. Попробуйте позже.",
+                    ephemeral=True
+                )
         except Exception as e:
-            await interaction.response.send_message("Произошла ошибка при обработке платежа.", ephemeral=True)
+            await interaction.response.send_message(
+                "Произошла ошибка при обработке платежа.",
+                ephemeral=True
+            )
             print(f"Ошибка: {e}")
