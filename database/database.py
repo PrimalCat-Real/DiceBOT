@@ -119,6 +119,10 @@ class DatabaseManager:
         self.forms.delete_one({"message_id": message_id})
     def get_form_data_by_message_id(self, message_id):
         return self.forms.find_one({'message_id': message_id})
+    
+    def update_user_tokens(self, discord_id, new_tokens):
+        self.users.update_one({"discord_id": discord_id}, {"$set": {"tokens": new_tokens}}, upsert=True)
+
 # Пример использования:
 # user_data = db_manager.get_user(12345)
 # db_manager.update_user(12345, {'username': 'NewUsername'})

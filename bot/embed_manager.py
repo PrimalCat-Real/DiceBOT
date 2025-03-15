@@ -1,6 +1,7 @@
 import discord
 import json
 from bot.buttons.accept_form_button import AcceptFormButton
+from bot.buttons.buy_product_button import BuyProductButton
 from bot.buttons.check_tokens_button import CheckTokensButton
 from bot.buttons.decline_form_button import DeclineFormButton
 from bot.buttons.fill_form_button import FillFormButton
@@ -17,7 +18,8 @@ class EmbedManager:
         'DeclineFormButton': DeclineFormButton,
         'discord.ui.Button.link': discord.ui.Button,
         'CheckTokensButton': CheckTokensButton,
-        'TokenPurchaseButton': TokenPurchaseButton
+        'TokenPurchaseButton': TokenPurchaseButton,
+        'BuyProductButton': BuyProductButton
     }
 
     @staticmethod
@@ -70,7 +72,7 @@ class EmbedManager:
                                 continue
                         elif button_type_name == 'CheckTokensButton':
                             button = button_class(db_manager)
-                        elif button_type_name == 'TokenPurchaseButton':
+                        elif button_type_name == 'TokenPurchaseButton' or  button_type_name == 'BuyProductButton':
                             button = button_class()
                         elif button_type_name == 'discord.ui.Button.link':
                             # Ищем неиспользованную кнопку-ссылку

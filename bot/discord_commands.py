@@ -3,6 +3,7 @@ from discord import Button, ButtonStyle, app_commands, Interaction
 from discord import Interaction, ui
 import logging
 
+from bot.buttons.buy_product_button import BuyProductButton
 from bot.buttons.check_tokens_button import CheckTokensButton
 from bot.buttons.fill_form_button import FillFormButton
 from bot.buttons.token_purchase_button import TokenPurchaseButton
@@ -87,8 +88,9 @@ class CommandManager:
         # easydonate_button = ui.Button(style=ButtonStyle.link, url="YOUR_EASYDONATE_LINK", label="Поддержать через EasyDonate")
         check_tokens_button = CheckTokensButton(self.db_manager)
         token_purchase_button = TokenPurchaseButton()
-        view = EmbedManager.create_view([check_tokens_button, token_purchase_button])
-        button_types = ['CheckTokensButton', 'TokenPurchaseButton']
+        buy_product_button = BuyProductButton(self.db_manager)
+        view = EmbedManager.create_view([check_tokens_button, token_purchase_button, buy_product_button])
+        button_types = ['CheckTokensButton', 'TokenPurchaseButton', 'BuyProductButton']
         await EmbedManager.send_embed_with_view(interaction.channel, embed, view, button_types, self.db_manager)
         await interaction.response.send_message("Сообщение с донатом отправлено!", ephemeral=True)
 
