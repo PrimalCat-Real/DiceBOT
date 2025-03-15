@@ -70,9 +70,9 @@ class EmbedManager:
                             else:
                                 logger.error(f"Form or user data not found for message {message.id}")
                                 continue
-                        elif button_type_name == 'CheckTokensButton':
+                        elif button_type_name == 'CheckTokensButton' or  button_type_name == 'BuyProductButton':
                             button = button_class(db_manager)
-                        elif button_type_name == 'TokenPurchaseButton' or  button_type_name == 'BuyProductButton':
+                        elif button_type_name == 'TokenPurchaseButton':
                             button = button_class()
                         elif button_type_name == 'discord.ui.Button.link':
                             # Ищем неиспользованную кнопку-ссылку
