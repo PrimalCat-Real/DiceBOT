@@ -88,7 +88,7 @@ class CommandManager:
         check_tokens_button = CheckTokensButton(self.db_manager)
         token_purchase_button = TokenPurchaseButton()
         view = EmbedManager.create_view([check_tokens_button, token_purchase_button])
-        button_types = ['CheckTokensButton' 'TokenPurchaseButton']
+        button_types = ['CheckTokensButton', 'TokenPurchaseButton']
         await EmbedManager.send_embed_with_view(interaction.channel, embed, view, button_types, self.db_manager)
         await interaction.response.send_message("Сообщение с донатом отправлено!", ephemeral=True)
 
