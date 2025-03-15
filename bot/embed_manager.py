@@ -56,11 +56,9 @@ class EmbedManager:
                 view = discord.ui.View(timeout=None)
                 original_buttons = []
                 for component in message.components:
-                    if isinstance(component, discord.ActionRow): # Change is here.
-                        for item in component.children:
-                            if isinstance(item, discord.ui.Button):
-                                original_buttons.append(item)
-
+                    for item in component.children:
+                        if isinstance(item, discord.ui.Button):
+                            original_buttons.append(item)
 
                 for button_type_name in button_types:
                     button_class = EmbedManager.BUTTON_TYPES.get(button_type_name)
