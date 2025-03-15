@@ -54,11 +54,7 @@ class EmbedManager:
 
                 button_types = message_data.get('button_types', [])
                 view = discord.ui.View(timeout=None)
-                original_buttons = []
-                for component in message.components:
-                    for item in component.children:
-                        print(item)
-                        original_buttons.append(item)
+                used_link_buttons = []
 
                 for button_type_name in button_types:
                     button_class = EmbedManager.BUTTON_TYPES.get(button_type_name)
@@ -77,12 +73,11 @@ class EmbedManager:
                         elif button_type_name == 'TokenPurchaseButton':
                             button = button_class()
                         elif button_type_name == 'discord.ui.Button.link':
-                            # Ищем кнопку с URL в исходных кнопках
-                            link_button = next((btn for btn in original_buttons if btn.url), None)
+                            # Ищем неиспользованную кнопку-ссылку
+                            link_button = next((item for item in message.components[0].children if item.url and item not in used_link_buttons), None)
                             if link_button:
                                 button = button_class(url=link_button.url, label=link_button.label)
-                                # Удаляем найденную кнопку из списка, чтобы не использовать её повторно
-                                original_buttons.remove(link_button)
+                                used_link_buttons.append(link_button) # Добавляем кнопку в список использованных
                             else:
                                 logger.error(f"Link button with URL not found in message components for message {message.id}")
                                 continue
