@@ -25,7 +25,23 @@ class AcceptFormButton(discord.ui.Button):
             async def on_submit(self, interaction: discord.Interaction):
                 reason = self.reason.value if self.reason.value else "Не указано"
                 await self.process_approval(interaction, reason)
+            async def add_role_by_nickname(self, interaction: discord.Interaction, nickname: str, role: discord.Role):
+                members = interaction.guild.members
+                found_members = [member for member in members if member.name == nickname]
 
+                if len(found_members) == 1:
+                    member = found_members[0]
+                    try:
+                        await member.add_roles(role)
+                        print(f"Роль {role.name} добавлена пользователю {member.name}.", ephemeral=True)
+                    except discord.Forbidden:
+                        print("У бота нет прав для добавления ролей.", ephemeral=True)
+                    except discord.HTTPException as e:
+                        print(f"Ошибка при добавлении роли: {e}", ephemeral=True)
+                elif len(found_members) > 1:
+                    print("Найдено несколько пользователей с таким никнеймом. Пожалуйста, уточните поиск.", ephemeral=True)
+                else:
+                    print("Пользователь с таким никнеймом не найден.", ephemeral=True)
             async def process_approval(self, interaction, reason):
                 self.db_manager.forms.update_one({"mc_username": self.form_data["mc_username"]}, {"$set": {"status": "approved", "approved_by": interaction.user.name, "approved_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'), "reason": reason}})
                 embed = interaction.message.embeds[0]
@@ -44,11 +60,14 @@ class AcceptFormButton(discord.ui.Button):
                 user_id = self.form_data.get("discord_user_id") or self.form_data.get("telegram_user_id")
                 if user_id and self.form_data.get("discord_user_id"):
                     # user = interaction.guild.get_member()
-                    user = interaction.guild.get_member(self.form_data.get("discord_user_id"))
-                    print(user)
+                   
+                    # user = interaction.guild.get_member(self.form_data.get("discord_user_id"))
+                    # print(user)
                     role = interaction.guild.get_role(PLAYER_ROLE_ID)
-                    if user and role:
-                       await user.add_roles(role)
+                    if role:
+                        
+                       await self.add_role_by_nickname(interaction, role, self.form_data.get("discord_name"))
+                       
                     # if user:
                     #     role = interaction.guild.get_role(PLAYER_ROLE_ID)
                     #     logging.info(f"{interaction.guild.id}")

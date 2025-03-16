@@ -134,6 +134,7 @@ class DiscordBot(commands.Bot):
                             guild = self.client.get_guild(guild_id)
                             if guild:
                                 role = guild.get_role(PLAYER_ROLE_ID)
+                    
                                 if role:
                                     user_id = int(form["discord_user_id"])
                                     user = guild.get_member(user_id)
@@ -160,6 +161,23 @@ class DiscordBot(commands.Bot):
 
             except (discord.NotFound, discord.HTTPException) as e:
                 logging.error(f"Failed to update embed for {form['mc_username']}: {e}")
+    async def add_role_by_nickname(self, interaction: discord.Interaction, nickname: str, role: discord.Role):
+                members = interaction.guild.members
+                found_members = [member for member in members if member.name == nickname]
+
+                if len(found_members) == 1:
+                    member = found_members[0]
+                    try:
+                        await member.add_roles(role)
+                        print(f"Роль {role.name} добавлена пользователю {member.name}.", ephemeral=True)
+                    except discord.Forbidden:
+                        print("У бота нет прав для добавления ролей.", ephemeral=True)
+                    except discord.HTTPException as e:
+                        print(f"Ошибка при добавлении роли: {e}", ephemeral=True)
+                elif len(found_members) > 1:
+                    print("Найдено несколько пользователей с таким никнеймом. Пожалуйста, уточните поиск.", ephemeral=True)
+                else:
+                    print.send_message("Пользователь с таким никнеймом не найден.", ephemeral=True)
     async def send_approved_embed(self, guild_id, form_data):
         channel_id = self.database_manager.get_approved_channel_id(guild_id)
         if channel_id:
