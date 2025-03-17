@@ -61,22 +61,24 @@ class ConfirmPurchaseButton(ui.Button):
             # Отправляем уведомление в канал
             purchase_channel_id = self.db_manager.get_purchase_channel_id(interaction.guild.id)
             if purchase_channel_id:
-                purchase_channel = interaction.client.get_channel(purchase_channel_id) # Используем bot.get_channel()
+                purchase_channel = interaction.client.get_channel(purchase_channel_id)
                 if purchase_channel:
                     mc_username = self.db_manager.get_mc_username_by_discord_id(self.user_id)
-                    description = f"Пользователь {interaction.user.mention}"
-                    if mc_username:
-                        description += f" ({mc_username})"
-                    description += f" купил {self.product['name']} за {self.product['cost']} токенов."
                     embed = Embed(
-                        title="Новая покупка!",
-                        description=description,
+                        title=f"Товар: {self.product['name']} - {self.product['cost']} токенов",
+                        timestamp=datetime.utcnow(),  # Добавляем время создания
                         color=discord.Color.green()
                     )
-                    embed.set_author(name=interaction.user.name, icon_url=interaction.user.avatar.url if interaction.user.avatar else interaction.user.default_avatar.url)
+
+                    # Добавляем поля
+                    embed.add_field(name="Покупатель", value=interaction.user.name, inline=True)
+                    embed.add_field(name="Minecraft ник", value=mc_username if mc_username else "Не указан", inline=True)
+                    embed.add_field(name="Стоимость", value=f"{self.product['cost']}", inline=True)
+
                     await purchase_channel.send(embed=embed)
         else:
             await interaction.followup.send("Недостаточно токенов для покупки.", ephemeral=True)
+
 
 class ConfirmPurchaseView(ui.View):
     def __init__(self, db_manager, product, user_id):
