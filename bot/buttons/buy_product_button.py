@@ -67,22 +67,25 @@ class ConfirmPurchaseButton(ui.Button):
                         mc_username = self.db_manager.get_mc_username_by_discord_id(self.user_id)
                         embed = Embed(
                             title=f"Товар: {self.product['name']} - {self.product['cost']} токенов",
-
                             color=discord.Color.green()
                         )
 
                         # Добавляем поля
-                        embed.add_field(name="Покупатель", value=interaction.user.name, inline=True)
+                        embed.add_field(name="Покупатель", value=interaction.user.mention, inline=True) # Используем mention
                         embed.add_field(name="Minecraft ник", value=mc_username if mc_username else "Не указан", inline=True)
                         embed.add_field(name="Стоимость", value=f"{self.product['cost']}", inline=True)
+
+                        # Добавляем автора и аватарку
+                        embed.set_author(name=interaction.user.name, icon_url=interaction.user.avatar.url if interaction.user.avatar else interaction.user.default_avatar.url)
 
                         await purchase_channel.send(embed=embed)
             except Exception as e:
                 # Если произошла ошибка, откатываем изменения токенов
-                self.db_manager.update_user_tokens(self.user_id, user["tokens"])  # Возвращаем старые токены
+                self.db_manager.update_user_tokens(self.user_id, user["tokens"])
                 await interaction.followup.send(f"Произошла ошибка при выполнении покупки: {e}", ephemeral=True)
         else:
             await interaction.followup.send("Недостаточно токенов для покупки.", ephemeral=True)
+
 
 
 class ConfirmPurchaseView(ui.View):
