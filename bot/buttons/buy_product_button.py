@@ -66,7 +66,6 @@ class ConfirmPurchaseButton(ui.Button):
                     mc_username = self.db_manager.get_mc_username_by_discord_id(self.user_id)
                     embed = Embed(
                         title=f"Товар: {self.product['name']} - {self.product['cost']} токенов",
-                        timestamp=datetime.utcnow(),  # Добавляем время создания
                         color=discord.Color.green()
                     )
 
