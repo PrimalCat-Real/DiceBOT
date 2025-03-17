@@ -30,6 +30,7 @@ class CommandManager:
             app_commands.Choice(name="set_approved_channel", value="set_approved_channel"),
             app_commands.Choice(name="delete_form", value="delete_form"),
             app_commands.Choice(name="send_donate_message", value="send_donate_message"),
+            app_commands.Choice(name="set_purchase_channel", value="set_purchase_channel"),
         ])
         async def discord_command(interaction: Interaction, command: app_commands.Choice[str]):
             if not is_admin(interaction):
