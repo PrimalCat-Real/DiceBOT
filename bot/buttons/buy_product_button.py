@@ -61,7 +61,7 @@ class ConfirmPurchaseButton(ui.Button):
             # Отправляем уведомление в канал
             purchase_channel_id = self.db_manager.get_purchase_channel_id(interaction.guild.id)
             if purchase_channel_id:
-                purchase_channel = self.db_manager.client.get_channel(purchase_channel_id)
+                purchase_channel = interaction.client.get_channel(purchase_channel_id) # Используем bot.get_channel()
                 if purchase_channel:
                     mc_username = self.db_manager.get_mc_username_by_discord_id(self.user_id)
                     description = f"Пользователь {interaction.user.mention}"
