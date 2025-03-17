@@ -55,26 +55,32 @@ class ConfirmPurchaseButton(ui.Button):
         user = self.db_manager.get_user_by_discord_id(self.user_id)
         if user and user.get("tokens", 0) >= self.product["cost"]:
             new_tokens = user["tokens"] - self.product["cost"]
-            self.db_manager.update_user_tokens(self.user_id, new_tokens)
-            await interaction.followup.send("Покупка успешно выполнена!", ephemeral=True)
+            try:
+                self.db_manager.update_user_tokens(self.user_id, new_tokens)
+                await interaction.followup.send("Покупка успешно выполнена!", ephemeral=True)
 
-            # Отправляем уведомление в канал
-            purchase_channel_id = self.db_manager.get_purchase_channel_id(interaction.guild.id)
-            if purchase_channel_id:
-                purchase_channel = interaction.client.get_channel(purchase_channel_id)
-                if purchase_channel:
-                    mc_username = self.db_manager.get_mc_username_by_discord_id(self.user_id)
-                    embed = Embed(
-                        title=f"Товар: {self.product['name']} - {self.product['cost']} токенов",
-                        color=discord.Color.green()
-                    )
+                # Отправляем уведомление в канал
+                purchase_channel_id = self.db_manager.get_purchase_channel_id(interaction.guild.id)
+                if purchase_channel_id:
+                    purchase_channel = interaction.client.get_channel(purchase_channel_id)
+                    if purchase_channel:
+                        mc_username = self.db_manager.get_mc_username_by_discord_id(self.user_id)
+                        embed = Embed(
+                            title=f"Товар: {self.product['name']} - {self.product['cost']} токенов",
 
-                    # Добавляем поля
-                    embed.add_field(name="Покупатель", value=interaction.user.name, inline=True)
-                    embed.add_field(name="Minecraft ник", value=mc_username if mc_username else "Не указан", inline=True)
-                    embed.add_field(name="Стоимость", value=f"{self.product['cost']}", inline=True)
+                            color=discord.Color.green()
+                        )
 
-                    await purchase_channel.send(embed=embed)
+                        # Добавляем поля
+                        embed.add_field(name="Покупатель", value=interaction.user.name, inline=True)
+                        embed.add_field(name="Minecraft ник", value=mc_username if mc_username else "Не указан", inline=True)
+                        embed.add_field(name="Стоимость", value=f"{self.product['cost']}", inline=True)
+
+                        await purchase_channel.send(embed=embed)
+            except Exception as e:
+                # Если произошла ошибка, откатываем изменения токенов
+                self.db_manager.update_user_tokens(self.user_id, user["tokens"])  # Возвращаем старые токены
+                await interaction.followup.send(f"Произошла ошибка при выполнении покупки: {e}", ephemeral=True)
         else:
             await interaction.followup.send("Недостаточно токенов для покупки.", ephemeral=True)
 
