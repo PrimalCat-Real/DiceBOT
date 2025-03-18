@@ -15,7 +15,7 @@ class FillFormButton(discord.ui.Button):
         user_id = interaction.user.id
         discord_name = interaction.user.name
         existing_form = self.db_manager.forms.find_one({
-            "discord_user_id": user_id,
+            "discord_id": user_id,
             "status": {"$in": ["pending", "approved"]} 
         })
 

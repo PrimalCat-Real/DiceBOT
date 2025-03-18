@@ -62,7 +62,7 @@ class DiscordBot(commands.Bot):
                         if gemini_response:  # True = approved
                             db_manager.forms.update_one({"mc_username": form["mc_username"]}, {"$set": {"status": "approved"}})
                             logging.info(f"Form {form['mc_username']} automatically approved by AI.")
-                            # discord_id = int(form["discord_user_id"])
+                            # discord_id = int(form["discord_id"])
                             await self.update_embed_status(form, "approved")
                             # from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
                             # await FormStatusEmbedManager.send_status_embed(client, db_manager, discord_id, form["mc_username"])
@@ -70,7 +70,7 @@ class DiscordBot(commands.Bot):
                         else:  # False = rejected
                             db_manager.forms.update_one({"mc_username": form["mc_username"]}, {"$set": {"status": "rejected"}})
                             logging.info(f"Form {form['mc_username']} automatically rejected by AI.")
-                            # discord_id = int(form["discord_user_id"])
+                            # discord_id = int(form["discord_id"])
                             await self.update_embed_status(form, "rejected")
                             db_manager.delete_form(form["mc_username"])
                             # from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
@@ -128,7 +128,7 @@ class DiscordBot(commands.Bot):
                     if await add_to_whitelist(form["mc_username"]):
                         logging.info(f"{form['mc_username']} added to whitelist.")
                     await self.send_approved_embed(guild_id, form_data)
-                if form.get("discord_user_id"):
+                if form.get("discord_id"):
                     if status == "approved":
                         if guild_id:
                             guild = self.client.get_guild(guild_id)
@@ -136,7 +136,7 @@ class DiscordBot(commands.Bot):
                                 role = guild.get_role(PLAYER_ROLE_ID)
                     
                                 if role:
-                                    user_id = int(form["discord_user_id"])
+                                    user_id = int(form["discord_id"])
                                     user = guild.get_member(user_id)
                                     if user:
                                         await user.add_roles(role)
@@ -152,9 +152,9 @@ class DiscordBot(commands.Bot):
 
                 self.database_manager.discord_embeds.delete_one({"message_id": form_data["message_id"]})
 
-                if form.get("discord_user_id"):
+                if form.get("discord_id"):
                     from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
-                    await FormStatusEmbedManager.send_status_embed(self.client, self.database_manager, int(form["discord_user_id"]), form["mc_username"])
+                    await FormStatusEmbedManager.send_status_embed(self.client, self.database_manager, int(form["discord_id"]), form["mc_username"])
                 elif form.get("telegram_user_id"):
                     from bot.forms.pedding_from_embed import TelegramFormStatusEmbedManager
                     await TelegramFormStatusEmbedManager.send_status_message(self.client.tg_bot.bot, self.database_manager, int(form["telegram_user_id"]), form["mc_username"])

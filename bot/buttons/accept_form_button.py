@@ -57,11 +57,11 @@ class AcceptFormButton(discord.ui.Button):
                 if await add_to_whitelist(self.form_data["mc_username"]):
                     logging.info(f"{self.form_data['mc_username']} added to whitelist.")
 
-                user_id = self.form_data.get("discord_user_id") or self.form_data.get("telegram_user_id")
-                if user_id and self.form_data.get("discord_user_id"):
+                user_id = self.form_data.get("discord_id") or self.form_data.get("telegram_user_id")
+                if user_id and self.form_data.get("discord_id"):
                     # user = interaction.guild.get_member()
                    
-                    # user = interaction.guild.get_member(self.form_data.get("discord_user_id"))
+                    # user = interaction.guild.get_member(self.form_data.get("discord_id"))
                     # print(user)
                     role = interaction.guild.get_role(PLAYER_ROLE_ID)
                     if role:
@@ -80,7 +80,7 @@ class AcceptFormButton(discord.ui.Button):
                     #         except discord.HTTPException as e:
                     #             logging.error(f"Failed to add role {role.name} to {user.name}: {e}")
                     else:
-                        logging.warning(f"User with ID {self.form_data.get("discord_user_id")} not found in guild.")
+                        logging.warning(f"User with ID {self.form_data.get("discord_id")} not found in guild.")
                 # guild = self.client.get_guild(guild_id)  # Получаем объект гильдии
                 # if guild:
                 #     try:
@@ -103,7 +103,7 @@ class AcceptFormButton(discord.ui.Button):
                 await interaction.response.edit_message(embed=embed, view=None)
                 self.db_manager.discord_embeds.delete_one({"message_id": interaction.message.id})
                 
-                if self.form_data.get("discord_user_id"):
+                if self.form_data.get("discord_id"):
                     from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
                     await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, user_id, self.form_data["mc_username"])
                 elif self.form_data.get("telegram_user_id"):

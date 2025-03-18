@@ -42,10 +42,10 @@ class DeclineFormButton(discord.ui.Button):
 
                 await interaction.response.edit_message(embed=embed, view=None)
                 self.db_manager.discord_embeds.delete_one({"message_id": interaction.message.id})
-                user_id = self.form_data.get("discord_user_id") or self.form_data.get("telegram_user_id")
+                user_id = self.form_data.get("discord_id") or self.form_data.get("telegram_user_id")
                 # await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, user_id,
                 #                                               self.form_data["mc_username"])
-                if self.form_data.get("discord_user_id"):
+                if self.form_data.get("discord_id"):
                     from bot.messages.ds_from_msg_sending import FormStatusEmbedManager
                     await FormStatusEmbedManager.send_status_embed(interaction.client, self.db_manager, user_id, self.form_data["mc_username"])
                 elif self.form_data.get("telegram_user_id"):

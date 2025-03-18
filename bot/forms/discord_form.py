@@ -73,7 +73,7 @@ class DiscordForm(Form):
                 form_data = {
                     "discord_name": interaction.user.name,
                     "discord_avatar": interaction.user.avatar.url if interaction.user.avatar else "",
-                    "discord_user_id": user_id,
+                    "discord_id": user_id,
                     "discord_created_at": interaction.user.created_at.strftime('%Y-%m-%d %H:%M:%S'),
                     "mc_username": mc_username,
                     "age": age,

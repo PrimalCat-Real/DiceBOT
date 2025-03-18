@@ -8,7 +8,7 @@ from database.database import DatabaseManager
 class FormStatusEmbedManager:
     @staticmethod
     async def send_status_embed(client, db_manager: DatabaseManager, user_id: int, mc_username: str):
-        form = db_manager.forms.find_one({"mc_username": mc_username, "discord_user_id": user_id})
+        form = db_manager.forms.find_one({"mc_username": mc_username, "discord_id": user_id})
         if not form:
             return
 
