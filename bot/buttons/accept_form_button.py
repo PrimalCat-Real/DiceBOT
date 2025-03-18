@@ -33,15 +33,15 @@ class AcceptFormButton(discord.ui.Button):
                     member = found_members[0]
                     try:
                         await member.add_roles(role)
-                        print(f"Роль {role.name} добавлена пользователю {member.name}.", ephemeral=True)
+                        print(f"Роль {role.name} добавлена пользователю {member.name}.")
                     except discord.Forbidden:
-                        print("У бота нет прав для добавления ролей.", ephemeral=True)
+                        print("У бота нет прав для добавления ролей.")
                     except discord.HTTPException as e:
-                        print(f"Ошибка при добавлении роли: {e}", ephemeral=True)
+                        print(f"Ошибка при добавлении роли: {e}")
                 elif len(found_members) > 1:
-                    print("Найдено несколько пользователей с таким никнеймом. Пожалуйста, уточните поиск.", ephemeral=True)
+                    print("Найдено несколько пользователей с таким никнеймом. Пожалуйста, уточните поиск.")
                 else:
-                    print("Пользователь с таким никнеймом не найден.", ephemeral=True)
+                    print("Пользователь с таким никнеймом не найден.")
             async def process_approval(self, interaction, reason):
                 self.db_manager.forms.update_one({"mc_username": self.form_data["mc_username"]}, {"$set": {"status": "approved", "approved_by": interaction.user.name, "approved_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'), "reason": reason}})
                 embed = interaction.message.embeds[0]

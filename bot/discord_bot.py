@@ -169,15 +169,15 @@ class DiscordBot(commands.Bot):
                     member = found_members[0]
                     try:
                         await member.add_roles(role)
-                        print(f"Роль {role.name} добавлена пользователю {member.name}.", ephemeral=True)
+                        print(f"Роль {role.name} добавлена пользователю {member.name}."e)
                     except discord.Forbidden:
-                        print("У бота нет прав для добавления ролей.", ephemeral=True)
+                        print("У бота нет прав для добавления ролей.")
                     except discord.HTTPException as e:
-                        print(f"Ошибка при добавлении роли: {e}", ephemeral=True)
+                        print(f"Ошибка при добавлении роли: {e}")
                 elif len(found_members) > 1:
-                    print("Найдено несколько пользователей с таким никнеймом. Пожалуйста, уточните поиск.", ephemeral=True)
+                    print("Найдено несколько пользователей с таким никнеймом. Пожалуйста, уточните поиск."e)
                 else:
-                    print.send_message("Пользователь с таким никнеймом не найден.", ephemeral=True)
+                    print.send_message("Пользователь с таким никнеймом не найден.")
     async def send_approved_embed(self, guild_id, form_data):
         channel_id = self.database_manager.get_approved_channel_id(guild_id)
         if channel_id:
