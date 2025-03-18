@@ -1,3 +1,4 @@
+import logging
 import discord
 from discord import Interaction, ButtonStyle
 from database.database import DatabaseManager
@@ -10,7 +11,7 @@ class CheckTokensButton(discord.ui.Button):
     async def callback(self, interaction: Interaction):
         user_id = interaction.user.id
         user = self.db_manager.users.find_one({"discord_id": user_id})
-
+        logging.info(user)
         if user and "tokens" in user:
             tokens = user["tokens"]
             await interaction.response.send_message(f"У вас {tokens} токенов.", ephemeral=True)
