@@ -169,13 +169,13 @@ class DiscordBot(commands.Bot):
                     member = found_members[0]
                     try:
                         await member.add_roles(role)
-                        print(f"Роль {role.name} добавлена пользователю {member.name}."e)
+                        print(f"Роль {role.name} добавлена пользователю {member.name}.")
                     except discord.Forbidden:
                         print("У бота нет прав для добавления ролей.")
                     except discord.HTTPException as e:
                         print(f"Ошибка при добавлении роли: {e}")
                 elif len(found_members) > 1:
-                    print("Найдено несколько пользователей с таким никнеймом. Пожалуйста, уточните поиск."e)
+                    print("Найдено несколько пользователей с таким никнеймом. Пожалуйста, уточните поиск.")
                 else:
                     print.send_message("Пользователь с таким никнеймом не найден.")
     async def send_approved_embed(self, guild_id, form_data):
